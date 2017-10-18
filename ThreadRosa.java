@@ -47,7 +47,7 @@ public class ThreadRosa extends Thread{
         socket.send(packet);
         } catch (IOException e) {
           e.printStackTrace();
-          moreQuotes = false;
+          moreInfo = false;
         }
      }
      socket.close();
@@ -58,7 +58,7 @@ public class ThreadRosa extends Thread{
         try {
             if ((returnValue = in.readLine()) == null) {
                 in.close();
-            moreQuotes = false;
+            moreInfo = false;
                 returnValue = "No more quotes. Goodbye.";
             }
         } catch (IOException e) {
@@ -66,5 +66,4 @@ public class ThreadRosa extends Thread{
         }
         return returnValue;
     }
-}
 }
