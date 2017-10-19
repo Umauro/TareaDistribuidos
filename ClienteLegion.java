@@ -10,23 +10,20 @@ public class ClienteLegion {
              return;
         }
 
-        // get a **DatagramSocket**
-        DatagramSocket socket = new DatagramSocket();
+        MulticastSocket socket = new MulticastSocket(4446);
+        InetAddress group = InetAddress.getByName("230.0.0.1");
+        socket.joinGroup(group);
 
-        // send request
-        byte[] buf = new byte[256];
-        InetAddress address = InetAddress.getByName(args[0]);
-        DatagramPacket packet = new DatagramPacket(buf, buf.length, address, 4445);
-        socket.send(packet);
+        DatagramPacket packet;
+        for (int i = 0; i < 5; i++) {
+            byte[] buf = new byte[256];
+            packet = new DatagramPacket(buf, buf.length);
+            socket.receive(packet);
 
-        // get response
-        packet = new DatagramPacket(buf, buf.length);
-        socket.receive(packet);
-
-        // display response
-        String received = new String(packet.getData());
-        System.out.println("Quote of the Moment: " + received);
-
+            String received = new String(packet.getData());
+            System.out.println("Quote of the Moment: " + received);
+        }
+        socket.leaveGroup(group);
         socket.close();
     }
 }
