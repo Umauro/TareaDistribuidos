@@ -6,27 +6,13 @@ public class cliente {
     private static InetAddress addressCentral;
     private static int puerto;
     private static String entradaTeclado;
+    private static InetAddress addressMulticast;
+    private static int puertoM;
 
 
     public static void main(String[] args) throws IOException {
-        //PARA MULTICASTE
-        MulticastSocket socket = new MulticastSocket(4446);
-        InetAddress group = InetAddress.getByName("230.0.0.1");
-        socket.joinGroup(group);
-
-        DatagramPacket packet;
-        for (int i = 0; i <= 10; i++) {
-            byte[] buf = new byte[256];
-            packet = new DatagramPacket(buf, buf.length);
-            socket.receive(packet);
-
-            String received = new String(packet.getData());
-            System.out.println("Quote of the Moment: " + received);
-        }
-        socket.leaveGroup(group);
-
         //Para central
-        /*
+
         // get a **DatagramSocket**
         DatagramSocket socket = new DatagramSocket();
 
@@ -53,7 +39,30 @@ public class cliente {
         System.out.println("Ingrese Puerto servidor central: ");
         puerto = entrada.nextInt();
 
+        //PARA MULTICAST
+        //IP SERVIDOR MULTICAST
+        System.out.println("Ingrese IP servidor Multicast: ");
+        while(entradaTeclado == entrada.nextLine());
+        entradaTeclado = entrada.nextLine();
+        InetAddress group = InetAddress.getByName(entradaTeclado);
+        addressMulticast = InetAddress.getByName(entradaTeclado);
 
+        //PUERTO SERVIDOR MULTICAST
+        System.out.println("Ingrese Puerto servidor multicast: ");
+        puertoM = entrada.nextInt();
+
+        MulticastSocket socketM = new MulticastSocket(puertoM);
+        socketM.joinGroup(group); //230.0.0.1
+
+        DatagramPacket packetM;
+        for (int i = 0; i <= 10; i++) {
+            packetM = new DatagramPacket(buf, buf.length);
+            socketM.receive(packetM);
+
+            String receivedM = new String(packetM.getData());
+            System.out.println("Quote of the Moment: " + receivedM);
+        }
+        socketM.leaveGroup(addressMulticast);
 
         //Envío Request al Servidor Central
         buf = mensaje.getBytes();
@@ -69,6 +78,5 @@ public class cliente {
         System.out.println(received);
 
         socket.close();
-        */
     }
 }
