@@ -20,6 +20,7 @@ public class cliente {
 
         // variables envío de request
         byte[] buf = new byte[256];
+        byte[] recibir = new byte[256];
         String mensaje = "";
 
 
@@ -48,7 +49,7 @@ public class cliente {
         socket.send(packet);
 
         // get response
-        packet = new DatagramPacket(buf, buf.length);
+        packet = new DatagramPacket(recibir, recibir.length);
         socket.receive(packet);
 
         // display response
