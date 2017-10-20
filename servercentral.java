@@ -25,7 +25,7 @@ public class servercentral extends Thread {
 
     public void run() {
 
-        while (moreQuotes) {
+        /*while (moreQuotes) {
             try {
                 byte[] buf = new byte[256];
 
@@ -53,20 +53,42 @@ public class servercentral extends Thread {
             moreQuotes = false;
             }
         }
-        socket.close();
-    }
+        */
+        try{
+          Scanner entrada = new Scanner(System.in);
+          byte[] buf = new byte[256];
+          byte[] bufMsg = new byte[256];
 
-    protected String getNextQuote() {
-        String returnValue = null;
-        try {
-            if ((returnValue = in.readLine()) == null) {
-                in.close();
-            moreQuotes = false;
-                returnValue = "No more quotes. Goodbye.";
-            }
-        } catch (IOException e) {
-            returnValue = "IOException occurred in server.";
+          // Recibir Paquete
+          DatagramPacket packet = new DatagramPacket(buf, buf.length);
+          socket.receive(packet);
+          String received = new String(packet.getData());
+
+          // Manejo de autorización
+          InetAddress ipCliente = packet.getAddress();
+          int puertoCliente = packet.getPort();
+
+          System.out.println("Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
+          System.out.println("[1] SI");
+          System.out.println("[2] NO");
+          int decision = entrada.nextInt();
+
+          if(decision == 1){
+            String mensaje = "ADELANTE";
+            bufMsg = mensaje.getBytes();
+            packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+            socket.send(packet);
+          }
+
+          else if(decision == 2){
+            String mensaje = "NOHAYMANO";
+            bufMsg = mensaje.getBytes();
+            packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+            socket.send(packet);
+          }
+        } catch (IOException e){
+          e.printStackTrace();
         }
-        return returnValue;
+        socket.close();
     }
 }
