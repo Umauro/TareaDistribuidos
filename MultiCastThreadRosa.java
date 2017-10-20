@@ -3,24 +3,23 @@ import java.net.*;
 import java.util.*;
 
 public class MultiCastThreadRosa extends ThreadRosa {
+    private List<Titanes> titans = new ArrayList<Titanes>();
+    private long TEN_SECONDS = 10000;
+    private String titanes = "Hola que tal";
 
-    private long FIVE_SECONDS = 5000;
 
     public MultiCastThreadRosa() throws IOException {
         super("MultiCastThreadRosa");
     }
 
     public void run() {
-        while (moreInfo) {
+      int uno = 1;
+      while(uno <= 10){
             try {
                 byte[] buf = new byte[256];
 
                 // construct quote
-                String dString = null;
-                if (in == null)
-                    dString = new Date().toString();
-                else
-                    dString = getNextQuote();
+                String dString = titanes;
                 buf = dString.getBytes();
 
                 // send it
@@ -28,14 +27,13 @@ public class MultiCastThreadRosa extends ThreadRosa {
                 DatagramPacket packet = new DatagramPacket(buf, buf.length,
                     group, 4446);
                 socket.send(packet);
-
+                uno++;
                 // sleep for a while
                 try {
-                    sleep((long)(Math.random() * FIVE_SECONDS));
+                    sleep((long)(Math.random() * TEN_SECONDS));
                 } catch (InterruptedException e) { }
             } catch (IOException e) {
                 e.printStackTrace();
-                moreInfo = false;
             }
         }
         socket.close();

@@ -9,7 +9,8 @@ public class cliente {
 
 
     public static void main(String[] args) throws IOException {
-        
+
+        //Para central
         // get a **DatagramSocket**
         DatagramSocket socket = new DatagramSocket();
 
@@ -52,5 +53,22 @@ public class cliente {
         System.out.println(received);
 
         socket.close();
+
+        //PARA MULTICASTE
+        MulticastSocket socket = new MulticastSocket(4446);
+        InetAddress group = InetAddress.getByName("230.0.0.1");
+        socket.joinGroup(group);
+
+        DatagramPacket packet;
+        for (int i = 0; i <= 10; i++) {
+            byte[] buf = new byte[256];
+            packet = new DatagramPacket(buf, buf.length);
+            socket.receive(packet);
+
+            String received = new String(packet.getData());
+            System.out.println("Quote of the Moment: " + received);
+        }
+        socket.leaveGroup(group);
+
     }
 }
