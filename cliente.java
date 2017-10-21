@@ -9,7 +9,6 @@ public class cliente {
     private static InetAddress addressMulticast;
     private static int puertoM;
 
-
     public static void main(String[] args) throws IOException {
         //Para central
 
@@ -55,12 +54,14 @@ public class cliente {
         socketM.joinGroup(group); //230.0.0.1
 
         DatagramPacket packetM;
-        for (int i = 0; i <= 10; i++) {
+        int i = 1;
+        while(i != 10){
             packetM = new DatagramPacket(buf, buf.length);
             socketM.receive(packetM);
 
             String receivedM = new String(packetM.getData());
             System.out.println("Quote of the Moment: " + receivedM);
+            i++;
         }
         socketM.leaveGroup(addressMulticast);
 
