@@ -9,6 +9,8 @@ public class Tcliente{
     private static InetAddress addressMulticast;
     private static int puertoM;
     private static ConexionMulticast conexion;
+    private List<Titanes> titanes = new ArrayList<Titanes>();
+    protected Boolean flag = true;
     public Tcliente() {
         Scanner scanner = new Scanner(System.in);
 
@@ -21,6 +23,42 @@ public class Tcliente{
         //Puerto Servidor Central
         System.out.println("[Cliente] Ingrese Puerto servidor central: ");
         puerto = scanner.nextInt();
+    }
+
+    public void terminal(String ipPeticiones, int puertoPeticiones){
+      Thread t = new Thread(new Runnable(){
+          public void run(){
+            int opcion;
+            Scanner entrada = new Scanner(System.in);
+            while(flag){
+              System.out.println("[CLIENTE] Ingrese Opción");
+              System.out.println("[CLIENTE] [1] Lista de Titanes");
+              System.out.println("[Cliente] [2] Cambiar de Distrito");
+              System.out.println("[Cliente] [3] Capturar Titan");
+              System.out.println("[Cliente] [4] Asesinar Titan");
+              System.out.println("[Cliente] [5] Lista Titanes Capturados");
+              System.out.println("[Cliente] [6] Lista Titanes Asesinados");
+              opcion = entrada.nextInt();
+
+              if(opcion == 1){
+                for(int i = 0; i < titanes.size(); i++){
+                  System.out.println("*******");
+                  System.out.println("ID: " + titanes.get(i).getId());
+                  System.out.println("Nombre: " + titanes.get(i).getNombre());
+                  System.out.println("Tipo: " + titanes.get(i).getTipo());
+                  System.out.println("*******");
+                }
+              }
+
+              else if(opcion == 2){
+                flag = false;
+                System.out.println("Abandonando Distrito");
+                //Acá hay que agregar la opción de dejar el grupo multicast c:
+              }
+            }
+          }
+      });
+      t.start();
     }
 
     public void infoMulti(String ipMulticast, int puertoMulticast){
@@ -42,15 +80,16 @@ public class Tcliente{
                         socketM.receive(packetM);
 
                         try{
-                          System.out.println("VOY A LEER UN OBJETO");
+
                           ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
                           ObjectInputStream is = new ObjectInputStream(serializado);
                           Titanes nuevotitan = (Titanes)is.readObject();
                           is.close();
 
-                          String mensaje = "Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
+                          String mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
                                           +nuevotitan.getId()+".";
                           System.out.println(mensaje);
+                          titanes.add(nuevotitan);
                         } catch (ClassNotFoundException e){
                           e.printStackTrace();
                         }
@@ -73,7 +112,7 @@ public class Tcliente{
 
         //Pedir nombre del distrito
         Scanner entrada = new Scanner(System.in);
-        System.out.println("Ingrese nombre del distrito a investigar");
+        System.out.println("[CLIENTE] Ingrese nombre del distrito a investigar");
         mensaje = entrada.nextLine();
         //Envío Request al Servidor Central
         buf = mensaje.getBytes();

@@ -9,6 +9,7 @@ public class main {
         ConexionMulticast conexion = proceso.getConexion();
         System.out.println(conexion.getNombre());
         proceso.infoMulti(conexion.getMulticastIp(), conexion.getMulticastPort());
+        proceso.terminal("127.0.0.2", conexion.getPeticionesPort());
 
 
     }

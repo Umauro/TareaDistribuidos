@@ -52,7 +52,7 @@ public class MultiCastThreadRosa extends Thread {
         t.start();
     }
 
-
+    /*
     public void mensajeContinuo(){
         Thread t = new Thread(new Runnable(){
             public void run(){
@@ -81,7 +81,7 @@ public class MultiCastThreadRosa extends Thread {
         });
         t.start();
     }
-
+    */
     public void publicarTitan(){
         Titanes nuevotitan = new Titanes();
         titans.add(nuevotitan);
