@@ -85,18 +85,25 @@ public class MultiCastThreadRosa extends Thread {
     public void publicarTitan(){
         Titanes nuevotitan = new Titanes();
         titans.add(nuevotitan);
-        byte[] buf = new byte[256];
+        //byte[] buf = new byte[256];
 
-        //Contruccion de mensaje
-        String mensaje = "[Distrito "+nombre+"]Aparece nuevo Titan! "+nuevotitan.getNombre()+", tipo "
-                            +nuevotitan.getTipo()+", ID"+nuevotitan.getId()+".";
-        buf = mensaje.getBytes();
+        //Intento de serialización
+        try{
+          ByteArrayOutputStream serial = new ByteArrayOutputStream();
+          ObjectOutputStream os = new ObjectOutputStream(serial);
+          os.writeObject(nuevotitan);
+          os.close();
+          byte[] buf = serial.toByteArray();
+          DatagramPacket packet = new DatagramPacket(buf, buf.length, addressMulticast, puerto);
+          try{
+              socket.send(packet);
+          } catch (IOException e){e.printStackTrace();}
+        }catch (IOException e){
+          e.printStackTrace();
+        }
 
         //Enviar Mensaje
-        DatagramPacket packet = new DatagramPacket(buf, buf.length, addressMulticast, puerto);
-        try{
-            socket.send(packet);
-        } catch (IOException e){e.printStackTrace();}
+
         //socket.close();
     }
 }

@@ -47,9 +47,18 @@ public class Tcliente{
                     while(true){
                         packetM = new DatagramPacket(buf, buf.length);
                         socketM.receive(packetM);
+                        try{
+                          ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
+                          ObjectInputStream is = new ObjectInputStream(serializado);
+                          Titanes nuevotitan = (Titanes)is.readObject();
+                          is.close();
 
-                        String receivedM = new String(packetM.getData());
-                        System.out.println(receivedM);
+                          String mensaje = "Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
+                                          +nuevotitan.getId()+".";
+                          System.out.println(mensaje);
+                        } catch (ClassNotFoundException e){
+                          e.printStackTrace();
+                        }
                     }
                     //socketM.leaveGroup(addressMulticast);
                 } catch (IOException e) {e.printStackTrace();}
