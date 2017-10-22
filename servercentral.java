@@ -67,12 +67,12 @@ public class servercentral extends Thread {
 
           if(decision == 1){
             for(int i = 0; i < conexiones.size(); i++){
-              System.out.println(conexiones.get(0).getNombre());
-              System.out.println(received);
+              System.out.println(conexiones.get(i).getNombre());
+              System.out.println(received.replaceAll("\\P{Print}",""));
 
               System.out.println(conexiones.get(i).getNombre().equals(received));
 
-              if(conexiones.get(i).getNombre().equals(received)){
+              if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
                 String mensaje = "ADELANTE";
                 bufMsg = mensaje.getBytes();
                 packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
