@@ -29,7 +29,7 @@ public class Titanes{
     }
 
     public String mostrar(){
-        return ID+" "+Nombre+" "+Tipo;
+        return ID+" "+Nombre+" "+Tipo+"\n";
     }
 
     public int getId(){

@@ -13,24 +13,24 @@ public class Tcliente{
         Scanner scanner = new Scanner(System.in);
 
         //IP Servidor Central
-        System.out.println("IP Servidor Central: ");
+        System.out.println("[Cliente] IP Servidor Central: ");
         entradaTeclado = scanner.nextLine();
         try{
             addressCentral = InetAddress.getByName(entradaTeclado);
         } catch (UnknownHostException e) {e.printStackTrace();}
         //Puerto Servidor Central
-        System.out.println("Ingrese Puerto servidor central: ");
+        System.out.println("[Cliente] Ingrese Puerto servidor central: ");
         puerto = scanner.nextInt();
 
         //IP Multicast
-        System.out.println("Ingrese IP servidor Multicast: "); //230.0.0.1
+        System.out.println("[Cliente] Ingrese IP servidor Multicast: "); //230.0.0.1
         while(entradaTeclado == scanner.nextLine());
         entradaTeclado = scanner.nextLine();
         try{
             addressMulticast = InetAddress.getByName(entradaTeclado);
         } catch (UnknownHostException e) {e.printStackTrace();}
         //Puerto Multicast
-        System.out.println("Ingrese Puerto servidor multicast: ");
+        System.out.println("[Cliente] Ingrese Puerto servidor multicast: ");
         puertoM = scanner.nextInt();
     }
 
@@ -44,16 +44,14 @@ public class Tcliente{
                     socketM.joinGroup(addressMulticast); //230.0.0.1
 
                     DatagramPacket packetM;
-                    int i = 1;
-                    while(i != 10){
+                    while(true){
                         packetM = new DatagramPacket(buf, buf.length);
                         socketM.receive(packetM);
 
                         String receivedM = new String(packetM.getData());
-                        System.out.println("Quote of the Moment: " + receivedM);
-                        i++;
+                        System.out.println(receivedM);
                     }
-                    socketM.leaveGroup(addressMulticast);
+                    //socketM.leaveGroup(addressMulticast);
                 } catch (IOException e) {e.printStackTrace();}
             }
         });

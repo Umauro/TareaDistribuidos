@@ -9,7 +9,7 @@ public class servercentral extends Thread {
     protected boolean moreQuotes = true;
     protected int puerto;
     protected InetAddress addressCentral;
-    
+
     public servercentral() throws IOException {
         this("servercentral");
     }
@@ -17,12 +17,12 @@ public class servercentral extends Thread {
     public servercentral(String name) throws IOException {
         super(name);
         Scanner scanner = new Scanner(System.in);
-        System.out.println("Ingresar IP Servidor Central: ");
+        System.out.println("[Central] Ingresar IP Servidor Central: ");
         try{
             addressCentral = InetAddress.getByName(scanner.nextLine());
         } catch (UnknownHostException e) {e.printStackTrace();}
 
-        System.out.println("Ingrese puerto de Servidor Central: ");
+        System.out.println("[Central] Ingrese puerto de Servidor Central: ");
         puerto = scanner.nextInt();
         socket = new DatagramSocket(puerto);
     }
@@ -44,7 +44,7 @@ public class servercentral extends Thread {
           InetAddress ipCliente = packet.getAddress();
           int puertoCliente = packet.getPort();
 
-          System.out.println("Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
+          System.out.println("[Central] Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
           System.out.println("[1] SI");
           System.out.println("[2] NO");
           int decision = entrada.nextInt();
