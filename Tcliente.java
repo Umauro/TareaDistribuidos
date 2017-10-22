@@ -8,7 +8,7 @@ public class Tcliente{
     private static String entradaTeclado;
     private static InetAddress addressMulticast;
     private static int puertoM;
-
+    private static ConexionMulticast conexion;
     public Tcliente() {
         Scanner scanner = new Scanner(System.in);
 
@@ -21,26 +21,19 @@ public class Tcliente{
         //Puerto Servidor Central
         System.out.println("[Cliente] Ingrese Puerto servidor central: ");
         puerto = scanner.nextInt();
-
-        //IP Multicast
-        System.out.println("[Cliente] Ingrese IP servidor Multicast: "); //230.0.0.1
-        while(entradaTeclado == scanner.nextLine());
-        entradaTeclado = scanner.nextLine();
-        try{
-            addressMulticast = InetAddress.getByName(entradaTeclado);
-        } catch (UnknownHostException e) {e.printStackTrace();}
-        //Puerto Multicast
-        System.out.println("[Cliente] Ingrese Puerto servidor multicast: ");
-        puertoM = scanner.nextInt();
     }
 
-    public void infoMulti(){
+    public void infoMulti(String ipMulticast, int puertoMulticast){
         Thread t = new Thread(new Runnable(){
             public void run(){
+              try{
+                  addressMulticast = InetAddress.getByName(ipMulticast);
+              } catch (UnknownHostException e) {e.printStackTrace();}
+
                 //Codigo para recibir mensajes de servidor multicast
                 byte[] buf = new byte[256];
                 try{
-                    MulticastSocket socketM = new MulticastSocket(puertoM);
+                    MulticastSocket socketM = new MulticastSocket(puertoMulticast);
                     socketM.joinGroup(addressMulticast); //230.0.0.1
 
                     DatagramPacket packetM;
@@ -70,39 +63,42 @@ public class Tcliente{
     }
 
     public void serverCentral() {
-        Thread t = new Thread(new Runnable() {
-            public void run() {
-                    // get a **DatagramSocket**
-                try{
-                    DatagramSocket socket = new DatagramSocket();
-                    // variables envío de request
-                    byte[] buf = new byte[256];
-                    byte[] recibir = new byte[256];
-                    String mensaje = "";
+      // get a **DatagramSocket**
+      try{
+        DatagramSocket socket = new DatagramSocket();
+        // variables envío de request
+        byte[] buf = new byte[256];
+        byte[] recibir = new byte[256];
+        String mensaje = "";
 
-                    //Pedir nombre del distrito
-                    Scanner entrada = new Scanner(System.in);
-                    System.out.println("Ingrese nombre del distrito a investigar");
-                    mensaje = entrada.nextLine();
-                    //Envío Request al Servidor Central
-                    buf = mensaje.getBytes();
-                    DatagramPacket packet = new DatagramPacket(buf, buf.length, addressCentral, puerto);
-                    try{
-                        socket.send(packet);
+        //Pedir nombre del distrito
+        Scanner entrada = new Scanner(System.in);
+        System.out.println("Ingrese nombre del distrito a investigar");
+        mensaje = entrada.nextLine();
+        //Envío Request al Servidor Central
+        buf = mensaje.getBytes();
+        DatagramPacket packet = new DatagramPacket(buf, buf.length, addressCentral, puerto);
+        try{
+          socket.send(packet);
 
-                        // get response
-                        packet = new DatagramPacket(recibir, recibir.length);
-                        socket.receive(packet);
-                    } catch (IOException e) {e.printStackTrace();}
+          // get response
+          packet = new DatagramPacket(recibir, recibir.length);
+          socket.receive(packet);
+          try{
+            ByteArrayInputStream serializado = new ByteArrayInputStream(recibir);
+            ObjectInputStream is = new ObjectInputStream(serializado);
+            ConexionMulticast nuevaConexion = (ConexionMulticast)is.readObject();
+            is.close();
+            conexion = nuevaConexion;
+          } catch (ClassNotFoundException e){
+            e.printStackTrace();
+          }
+        } catch (IOException e) {e.printStackTrace();}
+          socket.close();
+        } catch (SocketException e) {e.printStackTrace();}
+    }
 
-                    // display response
-                    String received = new String(packet.getData());
-                    System.out.println(received);
-
-                    socket.close();
-                } catch (SocketException e) {e.printStackTrace();}
-            }
-        });
-        t.start();
+    public ConexionMulticast getConexion(){
+      return conexion;
     }
 }

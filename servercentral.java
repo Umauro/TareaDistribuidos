@@ -49,7 +49,7 @@ public class servercentral extends Thread {
 
           Scanner entrada = new Scanner(System.in);
           byte[] buf = new byte[256];
-          byte[] bufMsg = new byte[256];
+          //byte[] bufMsg = new byte[256];
 
           // Recibir Paquete
           DatagramPacket packet = new DatagramPacket(buf, buf.length);
@@ -73,10 +73,23 @@ public class servercentral extends Thread {
               System.out.println(conexiones.get(i).getNombre().equals(received));
 
               if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
-                String mensaje = "ADELANTE";
-                bufMsg = mensaje.getBytes();
-                packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-                socket.send(packet);
+                //String mensaje = "ADELANTE";
+                //bufMsg = mensaje.getBytes();
+                //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                //socket.send(packet);
+                try{
+                  ByteArrayOutputStream serial = new ByteArrayOutputStream();
+                  ObjectOutputStream os = new ObjectOutputStream(serial);
+                  os.writeObject(conexiones.get(i));
+                  os.close();
+                  byte[] bufMsg = serial.toByteArray();
+                  DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                  try{
+                      socket.send(packetResponse);
+                  } catch (IOException e){e.printStackTrace();}
+                }catch (IOException e){
+                  e.printStackTrace();
+                }
               }
             }
 
@@ -84,9 +97,9 @@ public class servercentral extends Thread {
 
           else if(decision == 2){
             String mensaje = "NOHAYMANO";
-            bufMsg = mensaje.getBytes();
-            packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-            socket.send(packet);
+            //bufMsg = mensaje.getBytes();
+            //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+            //socket.send(packet);
           }
         } catch (IOException e){
           e.printStackTrace();
