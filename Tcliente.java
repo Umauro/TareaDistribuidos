@@ -17,7 +17,7 @@ public class Tcliente{
         entradaTeclado = scanner.nextLine();
         try{
             addressCentral = InetAddress.getByName(entradaTeclado);
-        } catch (UnknownHostException e) {System.out.println("No se reconoce la IP");}
+        } catch (UnknownHostException e) {e.printStackTrace();}
         //Puerto Servidor Central
         System.out.println("Ingrese Puerto servidor central: ");
         puerto = scanner.nextInt();
@@ -28,7 +28,7 @@ public class Tcliente{
         entradaTeclado = scanner.nextLine();
         try{
             addressMulticast = InetAddress.getByName(entradaTeclado);
-        } catch (UnknownHostException e) {System.out.println("No se reconoce la IP");}
+        } catch (UnknownHostException e) {e.printStackTrace();}
         //Puerto Multicast
         System.out.println("Ingrese Puerto servidor multicast: ");
         puertoM = scanner.nextInt();

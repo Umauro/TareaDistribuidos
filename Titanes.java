@@ -31,4 +31,16 @@ public class Titanes{
     public String mostrar(){
         return ID+" "+Nombre+" "+Tipo;
     }
+
+    public int getId(){
+      return ID;
+    }
+
+    public String getTipo(){
+      return Tipo;
+    }
+
+    public String getNombre(){
+      return Nombre;
+    }
 }
