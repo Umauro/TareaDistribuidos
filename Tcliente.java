@@ -47,7 +47,9 @@ public class Tcliente{
                     while(true){
                         packetM = new DatagramPacket(buf, buf.length);
                         socketM.receive(packetM);
+
                         try{
+                          System.out.println("VOY A LEER UN OBJETO");
                           ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
                           ObjectInputStream is = new ObjectInputStream(serializado);
                           Titanes nuevotitan = (Titanes)is.readObject();
@@ -78,6 +80,10 @@ public class Tcliente{
                     byte[] recibir = new byte[256];
                     String mensaje = "";
 
+                    //Pedir nombre del distrito
+                    Scanner entrada = new Scanner(System.in);
+                    System.out.println("Ingrese nombre del distrito a investigar");
+                    mensaje = entrada.nextLine();
                     //Envío Request al Servidor Central
                     buf = mensaje.getBytes();
                     DatagramPacket packet = new DatagramPacket(buf, buf.length, addressCentral, puerto);
