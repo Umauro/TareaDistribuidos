@@ -10,8 +10,10 @@ public class Tcliente{
     private static int puertoM;
     private int titan;
     private InetAddress ipServer;
+    private int puertoU;
     private DatagramSocket socketUni;
     private static ConexionMulticast conexion;
+
     private List<Titanes> titanes = new ArrayList<Titanes>();
     private List<Titanes> asesinados = new ArrayList<Titanes>();
     private List<Titanes> capturados = new ArrayList<Titanes>();
@@ -37,7 +39,7 @@ public class Tcliente{
             try{
               ipServer = InetAddress.getByName(ipPeticiones);
             }catch (UnknownHostException e) {e.printStackTrace();}
-
+            puertoU = puertoPeticiones;
             int opcion;
             Scanner entrada = new Scanner(System.in);
             while(flag){
@@ -96,7 +98,7 @@ public class Tcliente{
                   os.close();
                   byte[] bufMsg = serial.toByteArray();
                   try{
-                      packetRequest = new DatagramPacket(bufMsg, bufMsg.length, ipServer, puertoPeticiones);
+                      packetRequest = new DatagramPacket(bufMsg, bufMsg.length, ipServer, puertoU);
                       socketUni.send(packetRequest);
                       packetResponse = new DatagramPacket(response, response.length);
                       socketUni.receive(packetResponse);

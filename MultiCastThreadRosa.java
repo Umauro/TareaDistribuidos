@@ -4,11 +4,15 @@ import java.util.*;
 
 public class MultiCastThreadRosa extends Thread {
     private MulticastSocket socket = null;
+    private DatagramSocket socketU = null;
     private List<Titanes> titans = new ArrayList<Titanes>();
     private long TEN_SECONDS = 10000;
     private int puerto;
     private InetAddress addressMulticast; //230.0.0.1
+    private InetAddress addressPeticiones;
+    private int puertoPeticiones;
     private String nombre;
+    private Titanes titan;
 
     public MultiCastThreadRosa() throws IOException {
         super("MultiCastThreadRosa");
@@ -25,7 +29,21 @@ public class MultiCastThreadRosa extends Thread {
         System.out.println("Puerto Multicast: ");
         puerto = scanner.nextInt();
 
+        String paraWhile = "";
+        while(paraWhile == scanner.nextLine());
+        System.out.println("Ingrese IP de Peticiones");
+        paraWhile = scanner.nextLine();
+        String aPeticiones = paraWhile;
+
+        try{
+          addressPeticiones = InetAddress.getByName(aPeticiones);
+        }catch (UnknownHostException e) {e.printStackTrace();}
+
+        System.out.println("Puerto peticiones: ");
+        puertoPeticiones = scanner.nextInt();
+
         socket = new MulticastSocket(puerto);
+        socketU = new DatagramSocket(puertoPeticiones);
     }
 
     public void terminal(){
@@ -50,6 +68,61 @@ public class MultiCastThreadRosa extends Thread {
             }
         });
         t.start();
+    }
+
+    public void unicast(){
+      Thread t = new Thread(new Runnable(){
+        public void run(){
+          try{
+            byte[] recibir = new byte[256];
+            DatagramPacket packet = new DatagramPacket(recibir, recibir.length);
+            socketU.receive(packet);
+
+            InetAddress cliente = packet.getAddress();
+            int puertoCliente = packet.getPort();
+
+
+            Boolean flag = false;
+
+            try{
+              ByteArrayInputStream serializado = new ByteArrayInputStream(recibir);
+              ObjectInputStream is = new ObjectInputStream(serializado);
+              UnicastRequest request = (UnicastRequest)is.readObject();
+              is.close();
+
+              for(int i = 0; i < titans.size(); i++){
+                if(titans.get(i).getId() == request.getId()){
+                  titan = titans.get(i);
+                  flag = true;
+                  titans.remove(i);
+                }
+              }
+
+              if(flag){
+                UnicastRequest response = new UnicastRequest(titan.getId(), "asesinado");
+                try{
+                  ByteArrayOutputStream serial = new ByteArrayOutputStream();
+                  ObjectOutputStream os = new ObjectOutputStream(serial);
+                  os.writeObject(response);
+                  os.close();
+                  byte[] bufMsg = serial.toByteArray();
+                  DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, cliente, puertoCliente);
+                  try{
+                      socket.send(packetResponse);
+
+                  } catch (IOException e){e.printStackTrace();}
+                }catch (IOException e){
+                  e.printStackTrace();
+                }
+              }
+
+            } catch (ClassNotFoundException e){
+              e.printStackTrace();
+            }
+          }catch (IOException e) {e.printStackTrace();}
+
+        }
+      });
     }
 
     /*
