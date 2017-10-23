@@ -14,27 +14,27 @@ public class ConexionMulticast implements Serializable{
     String paraWhile;
 
     System.out.println("Ingrese nombre del Distrito");
-    //nombre = entrada.nextLine();
-    nombre = "trost";
+    nombre = entrada.nextLine();
+    //nombre = "trost";
 
     System.out.println("Ingrese IP del grupo Multicast");
-    //paraWhile = entrada.nextLine();
-    paraWhile = "230.0.0.1";
+    paraWhile = entrada.nextLine();
+    //paraWhile = "230.0.0.1";
     multicastIp = paraWhile;
 
     System.out.println("Ingrese puerto del grupo Multicast");
-    //multicastPort = entrada.nextInt();
-    multicastPort = 4446;
+    multicastPort = entrada.nextInt();
+    //multicastPort = 4446;
 
-    //while(paraWhile == entrada.nextLine());
+    while(paraWhile == entrada.nextLine());
     System.out.println("Ingrese IP de Peticiones");
-    //paraWhile = entrada.nextLine();
-    paraWhile = "127.0.0.1";
+    paraWhile = entrada.nextLine();
+    //paraWhile = "127.0.0.1";
     peticionesIp = paraWhile;
 
     System.out.println("Ingrese puerto de Peticiones");
-    //peticionesPort = entrada.nextInt();
-    peticionesPort = 4447;
+    peticionesPort = entrada.nextInt();
+    //peticionesPort = 4447;
 
   }
 
