@@ -81,7 +81,6 @@ public class Tcliente{
                 DatagramPacket packetRequest;
                 DatagramPacket packetResponse;
                 try{
-                  System.out.println(puertoPeticiones);
                   socketUni = new DatagramSocket();
                 }catch (SocketException e){
                   e.printStackTrace();
@@ -96,11 +95,10 @@ public class Tcliente{
                 UnicastRequest request = new UnicastRequest(id, "asesinar");
                 try{
                   ByteArrayOutputStream serial = new ByteArrayOutputStream();
-                  ObjectOutputStream os = new ObjectOutputStream(serial);
+                   ObjectOutputStream os = new ObjectOutputStream(serial);
                   os.writeObject(request);
                   os.close();
                   byte[] bufMsg = serial.toByteArray();
-                  System.out.println(serial.toByteArray());
                   try{
                       packetRequest = new DatagramPacket(bufMsg, bufMsg.length, ipServer, puertoU);
                       socketUni.send(packetRequest);

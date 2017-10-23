@@ -82,7 +82,7 @@ public class MultiCastThreadRosa extends Thread {
             byte[] recibir = new byte[256];
             DatagramPacket packet = new DatagramPacket(recibir, recibir.length);
             socketU.receive(packet);
-
+            
             InetAddress cliente = packet.getAddress();
             int puertoCliente = packet.getPort();
             System.out.println(packet.getPort());
@@ -129,6 +129,7 @@ public class MultiCastThreadRosa extends Thread {
 
         }
       });
+      t.start();
     }
 
     /*
