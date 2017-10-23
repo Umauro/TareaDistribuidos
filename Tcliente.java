@@ -6,11 +6,11 @@ public class Tcliente{
     private static InetAddress addressCentral;
     private static int puerto;
     private static String entradaTeclado;
-    private final static InetAddress addressMulticast;
+    private static InetAddress addressMulticast;
     private static int puertoM;
     private int titan;
-    private final InetAddress ipServer;
-    private final int puertoU;
+    private InetAddress ipServer;
+    private int puertoU;
     private DatagramSocket socketUni;
     private static ConexionMulticast conexion;
 
@@ -23,15 +23,15 @@ public class Tcliente{
 
         //IP Servidor Central
         System.out.println("[Cliente] IP Servidor Central: ");
-        entradaTeclado = scanner.nextLine();
-        //entradaTeclado = "127.0.0.1";
+        //entradaTeclado = scanner.nextLine();
+        entradaTeclado = "127.0.0.1";
         try{
             addressCentral = InetAddress.getByName(entradaTeclado);
         } catch (UnknownHostException e) {e.printStackTrace();}
         //Puerto Servidor Central
         System.out.println("[Cliente] Ingrese Puerto servidor central: ");
-        puerto = scanner.nextInt();
-        //puerto = 4445;
+        //puerto = scanner.nextInt();
+        puerto = 4445;
     }
 
     public void terminal(String ipPeticiones, int puertoPeticiones){
