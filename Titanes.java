@@ -2,7 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-public class Titanes{
+public class Titanes implements Serializable{
     private int ID;
     private String Nombre;
     private String Tipo;
