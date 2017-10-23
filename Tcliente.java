@@ -23,13 +23,15 @@ public class Tcliente{
 
         //IP Servidor Central
         System.out.println("[Cliente] IP Servidor Central: ");
-        entradaTeclado = scanner.nextLine();
+        //entradaTeclado = scanner.nextLine();
+        entradaTeclado = "127.0.0.1";
         try{
             addressCentral = InetAddress.getByName(entradaTeclado);
         } catch (UnknownHostException e) {e.printStackTrace();}
         //Puerto Servidor Central
         System.out.println("[Cliente] Ingrese Puerto servidor central: ");
-        puerto = scanner.nextInt();
+        //puerto = scanner.nextInt();
+        puerto = 4445;
     }
 
     public void terminal(String ipPeticiones, int puertoPeticiones){
@@ -79,7 +81,8 @@ public class Tcliente{
                 DatagramPacket packetRequest;
                 DatagramPacket packetResponse;
                 try{
-                  socketUni = new DatagramSocket(puertoPeticiones);
+                  System.out.println(puertoPeticiones);
+                  socketUni = new DatagramSocket();
                 }catch (SocketException e){
                   e.printStackTrace();
                 }
@@ -97,6 +100,7 @@ public class Tcliente{
                   os.writeObject(request);
                   os.close();
                   byte[] bufMsg = serial.toByteArray();
+                  System.out.println(serial.toByteArray());
                   try{
                       packetRequest = new DatagramPacket(bufMsg, bufMsg.length, ipServer, puertoU);
                       socketUni.send(packetRequest);

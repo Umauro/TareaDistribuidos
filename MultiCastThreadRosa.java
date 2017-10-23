@@ -19,20 +19,24 @@ public class MultiCastThreadRosa extends Thread {
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Nombre Distrito: ");
-        nombre = scanner.nextLine();
+        //nombre = scanner.nextLine();
+        nombre = "trost";
 
         System.out.println("IP Multicast: ");
         try{
-            addressMulticast = InetAddress.getByName(scanner.nextLine());
+            //addressMulticast = InetAddress.getByName(scanner.nextLine());
+            addressMulticast = InetAddress.getByName("230.0.0.1");
         } catch (UnknownHostException e) {e.printStackTrace();}
 
         System.out.println("Puerto Multicast: ");
-        puerto = scanner.nextInt();
+        //puerto = scanner.nextInt();
+        puerto = 4446;
 
         String paraWhile = "";
-        while(paraWhile == scanner.nextLine());
+        //while(paraWhile == scanner.nextLine());
         System.out.println("Ingrese IP de Peticiones");
-        paraWhile = scanner.nextLine();
+        //paraWhile = scanner.nextLine();
+        paraWhile = "127.0.0.1";
         String aPeticiones = paraWhile;
 
         try{
@@ -40,7 +44,8 @@ public class MultiCastThreadRosa extends Thread {
         }catch (UnknownHostException e) {e.printStackTrace();}
 
         System.out.println("Puerto peticiones: ");
-        puertoPeticiones = scanner.nextInt();
+        //puertoPeticiones = scanner.nextInt();
+        puertoPeticiones = 4447;
 
         socket = new MulticastSocket(puerto);
         socketU = new DatagramSocket(puertoPeticiones);
@@ -80,6 +85,7 @@ public class MultiCastThreadRosa extends Thread {
 
             InetAddress cliente = packet.getAddress();
             int puertoCliente = packet.getPort();
+            System.out.println(packet.getPort());
 
 
             Boolean flag = false;
