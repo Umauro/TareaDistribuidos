@@ -61,7 +61,8 @@ public class MultiCastThreadRosa extends Thread {
                 while(flag == 1){
                     System.out.println("[Distrito "+nombre+"]\t");
                     input = scanner.nextLine();
-
+                    System.out.println("¿Que deseas hacer?");
+                    System.out.println("[Publicar Titan || exit ]");
                     if(input.equals("Publicar Titan")){
                         publicarTitan();
                     }

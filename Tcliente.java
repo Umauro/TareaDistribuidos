@@ -17,6 +17,7 @@ public class Tcliente{
     private List<Titanes> asesinados = new ArrayList<Titanes>();
     private List<Titanes> capturados = new ArrayList<Titanes>();
     protected Boolean flag = true;
+    protected Boolean adios = false;
     public Tcliente() {
         Scanner scanner = new Scanner(System.in);
 
@@ -66,6 +67,7 @@ public class Tcliente{
 
               else if(opcion == 2){
                 flag = false;
+                adios = true;
                 System.out.println("Abandonando Distrito");
                 //Acá hay que agregar la opción de dejar el grupo multicast c:
               }
