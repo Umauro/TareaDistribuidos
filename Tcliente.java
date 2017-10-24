@@ -68,12 +68,15 @@ public class Tcliente{
               else if(opcion == 2){
                 System.out.println("Abandonando Distrito");
                 try{
+                    System.out.println("Voy a pedir los nuevos datos de conexion");
                     serverCentral();
+                    System.out.println("Ya los obtuve");
                     ConexionMulticast conexion = getConexion();
                     addressMulticast = InetAddress.getByName(conexion.getMulticastIp());
                     puertoM = conexion.getMulticastPort();
                     ipServer = InetAddress.getByName(conexion.getPeticionesIp());
                     puertoU = conexion.getPeticionesPort();
+                    
                 }catch(UnknownHostException e){e.printStackTrace();
                 }
 
