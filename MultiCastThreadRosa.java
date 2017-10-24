@@ -105,9 +105,17 @@ public class MultiCastThreadRosa extends Thread {
               }
 
               if(flag){
-                enviarUnicast(cliente, puertoCliente, titan, "asesinado");
-                titan.cambiarEstado("asesinado");
-                enviarMulticast(titan);
+                  if(request.getAccion().equals("asesinar")){
+                      enviarUnicast(cliente, puertoCliente, titan, "asesinado");
+                      titan.cambiarEstado("asesinado");
+                      enviarMulticast(titan);
+                  }
+                  else{
+                      enviarUnicast(cliente, puertoCliente, titan, "capturado");
+                      titan.cambiarEstado("capturado");
+                      enviarMulticast(titan);
+                  }
+
               }
 
             } catch (ClassNotFoundException e){
