@@ -20,13 +20,13 @@ public class servercentral extends Thread {
         Scanner scanner = new Scanner(System.in);
         System.out.println("[Central] Ingresar IP Servidor Central: ");
         try{
-            addressCentral = InetAddress.getByName(scanner.nextLine());
-            //addressCentral = InetAddress.getByName("127.0.0.1");
+            //addressCentral = InetAddress.getByName(scanner.nextLine());
+            addressCentral = InetAddress.getByName("127.0.0.1");
         } catch (UnknownHostException e) {e.printStackTrace();}
 
         System.out.println("[Central] Ingrese puerto de Servidor Central: ");
-        puerto = scanner.nextInt();
-        //puerto = 4445;
+        //puerto = scanner.nextInt();
+        puerto = 4445;
         socket = new DatagramSocket(puerto);
 
         int opcion;

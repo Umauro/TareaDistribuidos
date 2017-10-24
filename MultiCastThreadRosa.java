@@ -82,7 +82,7 @@ public class MultiCastThreadRosa extends Thread {
             byte[] recibir = new byte[256];
             DatagramPacket packet = new DatagramPacket(recibir, recibir.length);
             socketU.receive(packet);
-            
+
             InetAddress cliente = packet.getAddress();
             int puertoCliente = packet.getPort();
             System.out.println(packet.getPort());
@@ -105,6 +105,8 @@ public class MultiCastThreadRosa extends Thread {
               }
 
               if(flag){
+                enviarUnicast(cliente, puertoCliente, titan, "asesinado");
+                /*
                 UnicastRequest response = new UnicastRequest(titan.getId(), "asesinado");
                 try{
                   ByteArrayOutputStream serial = new ByteArrayOutputStream();
@@ -119,7 +121,7 @@ public class MultiCastThreadRosa extends Thread {
                   } catch (IOException e){e.printStackTrace();}
                 }catch (IOException e){
                   e.printStackTrace();
-                }
+              }*/
               }
 
             } catch (ClassNotFoundException e){
@@ -168,22 +170,36 @@ public class MultiCastThreadRosa extends Thread {
         //byte[] buf = new byte[256];
 
         //Intento de serialización
-        try{
-          ByteArrayOutputStream serial = new ByteArrayOutputStream();
-          ObjectOutputStream os = new ObjectOutputStream(serial);
-          os.writeObject(nuevotitan);
-          os.close();
-          byte[] buf = serial.toByteArray();
-          DatagramPacket packet = new DatagramPacket(buf, buf.length, addressMulticast, puerto);
-          try{
-              socket.send(packet);
-          } catch (IOException e){e.printStackTrace();}
-        }catch (IOException e){
-          e.printStackTrace();
-        }
-
-        //Enviar Mensaje
-
+        enviarMulticast(nuevotitan);
         //socket.close();
+    }
+
+    public void enviarMulticast(Titanes titan){
+        try{
+            ByteArrayOutputStream serial = new ByteArrayOutputStream();
+            ObjectOutputStream os = new ObjectOutputStream(serial);
+            os.writeObject(titan);
+            os.close();
+            byte[] buf = serial.toByteArray();
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, addressMulticast, puerto);
+            try{
+                socket.send(packet);
+            } catch (IOException e){e.printStackTrace();}
+        } catch (IOException e){e.printStackTrace();}
+    }
+
+    public void enviarUnicast(InetAddress cliente, int puertoCliente, Titanes titan, String accion){
+        UnicastRequest response = new UnicastRequest(titan.getId(), accion);
+        try{
+            ByteArrayOutputStream serial = new ByteArrayOutputStream();
+            ObjectOutputStream os = new ObjectOutputStream(serial);
+            os.writeObject(response);
+            os.close();
+            byte[] bufMsg = serial.toByteArray();
+            DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, cliente, puertoCliente);
+            try{
+                socket.send(packetResponse);
+            } catch (IOException e){e.printStackTrace();}
+        } catch (IOException e){e.printStackTrace();}
     }
 }
