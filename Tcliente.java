@@ -8,28 +8,42 @@ public class Tcliente{
     private static String entradaTeclado;
     private static InetAddress addressMulticast;
     private static int puertoM;
+    private int titan;
+    private InetAddress ipServer;
+    private int puertoU;
+    private DatagramSocket socketUni;
     private static ConexionMulticast conexion;
     private List<Titanes> titanes = new ArrayList<Titanes>();
+    private List<Titanes> asesinados = new ArrayList<Titanes>();
+    private List<Titanes> capturados = new ArrayList<Titanes>();
     protected Boolean flag = true;
     public Tcliente() {
         Scanner scanner = new Scanner(System.in);
 
         //IP Servidor Central
         System.out.println("[Cliente] IP Servidor Central: ");
-        entradaTeclado = scanner.nextLine();
+        //entradaTeclado = scanner.nextLine();
+        entradaTeclado = "127.0.0.1";
         try{
             addressCentral = InetAddress.getByName(entradaTeclado);
         } catch (UnknownHostException e) {e.printStackTrace();}
         //Puerto Servidor Central
         System.out.println("[Cliente] Ingrese Puerto servidor central: ");
-        puerto = scanner.nextInt();
+        //puerto = scanner.nextInt();
+        puerto = 4445;
     }
 
     public void terminal(String ipPeticiones, int puertoPeticiones){
       Thread t = new Thread(new Runnable(){
           public void run(){
+            byte[] response = new byte[256];
+            try{
+              ipServer = InetAddress.getByName(ipPeticiones);
+            }catch (UnknownHostException e) {e.printStackTrace();}
+            puertoU = puertoPeticiones;
             int opcion;
             Scanner entrada = new Scanner(System.in);
+            Titanes nachin = null;
             while(flag){
               System.out.println("[CLIENTE] Ingrese Opción");
               System.out.println("[CLIENTE] [1] Lista de Titanes");
@@ -54,6 +68,31 @@ public class Tcliente{
                 flag = false;
                 System.out.println("Abandonando Distrito");
                 //Acá hay que agregar la opción de dejar el grupo multicast c:
+              }
+
+              else if(opcion == 3){
+                System.out.println("Acá vamos a capturar un titan");
+              }
+
+              else if(opcion == 4){
+                System.out.println("Ingrese ID del titan a Asesinar");
+                int id = entrada.nextInt();
+                UnicastRequest serverResponse;
+
+                for(int i = 0; i < titanes.size(); i++){
+                  if(titanes.get(i).getId() == id){
+                    nachin = titanes.get(i);
+                  }
+                }
+                if(nachin.getTipo().equals("Normal") || nachin.getTipo().equals("Excentrico")){
+                    serverResponse = enviarPeticion(id, "asesinar");
+                    if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("asesinado".replaceAll("\\P{Print}",""))){
+                        asesinados.add(nachin);
+                    }
+                }
+                else{
+                    System.out.println("No se puede asesinar un titan Cambiante");
+                }
               }
             }
           }
@@ -80,16 +119,40 @@ public class Tcliente{
                         socketM.receive(packetM);
 
                         try{
-
                           ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
                           ObjectInputStream is = new ObjectInputStream(serializado);
                           Titanes nuevotitan = (Titanes)is.readObject();
                           is.close();
+                          String mensaje;
+                          int id, i;
+                          id = nuevotitan.getId();
+                          if(nuevotitan.getState() == 1){
+                              mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
+                                              +nuevotitan.getId()+".";
+                              System.out.println(mensaje);
+                              titanes.add(nuevotitan);
+                          }
+                          else if(nuevotitan.getState() == 2){
+                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue asesinado!";
+                              System.out.println(mensaje);
+                              for(i = 0; i < titanes.size(); i++){
+                                  if(titanes.get(i).getId() == id){
+                                      titanes.remove(i);
+                                      break;
+                                  }
+                              }
+                          }
+                          else if(nuevotitan.getState() == 3){
+                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue capturado!";
+                              System.out.println(mensaje);
+                              for(i = 0; i < titanes.size(); i++){
+                                  if(titanes.get(i).getId() == id){
+                                      titanes.remove(i);
+                                      break;
+                                  }
+                              }
+                          }
 
-                          String mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
-                                          +nuevotitan.getId()+".";
-                          System.out.println(mensaje);
-                          titanes.add(nuevotitan);
                         } catch (ClassNotFoundException e){
                           e.printStackTrace();
                         }
@@ -139,5 +202,36 @@ public class Tcliente{
 
     public ConexionMulticast getConexion(){
       return conexion;
+    }
+
+    public UnicastRequest enviarPeticion(int i, String accion){
+        try{
+          socketUni = new DatagramSocket();
+        }catch (SocketException e){e.printStackTrace();}
+        DatagramPacket packetRequest;
+        DatagramPacket packetResponse;
+        byte[] response = new byte[256];
+        UnicastRequest serverResponse = new UnicastRequest(i, accion);
+        UnicastRequest request = new UnicastRequest(i, accion);
+        try{
+          ByteArrayOutputStream serial = new ByteArrayOutputStream();
+          ObjectOutputStream os = new ObjectOutputStream(serial);
+          os.writeObject(request);
+          os.close();
+          byte[] bufMsg = serial.toByteArray();
+          try{
+              packetRequest = new DatagramPacket(bufMsg, bufMsg.length, ipServer, puertoU);
+              socketUni.send(packetRequest);
+              packetResponse = new DatagramPacket(response, response.length);
+              socketUni.receive(packetResponse);
+              try{
+                ByteArrayInputStream serializado = new ByteArrayInputStream(response);
+                ObjectInputStream is = new ObjectInputStream(serializado);
+                serverResponse = (UnicastRequest)is.readObject();
+                is.close();
+                } catch (ClassNotFoundException e){e.printStackTrace();}
+            } catch (IOException e){e.printStackTrace();}
+        } catch (IOException e){e.printStackTrace();}
+        return serverResponse;
     }
 }
