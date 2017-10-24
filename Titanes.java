@@ -3,9 +3,9 @@ import java.net.*;
 import java.util.*;
 
 public class Titanes implements Serializable{
-    //La gracia del atributo accion es que cuando se envie el paquete con el titan,
+    //La gracia del atributo estado es que cuando se envie el paquete con el titan,
     //el cliente vea el valor de accion, si es 1 lo publica y agrega a la lista, sino lo borra de su lista
-    private int accion = 1; //1: publicar, 2: eliminar
+    private int estado = 1; //1: publicar, 2: eliminar
     private int ID;
     private String Nombre;
     private String Tipo;
@@ -47,8 +47,16 @@ public class Titanes implements Serializable{
       return Nombre;
     }
 
-    public int eliminar(){
-        accion = 2;
-        return accion;
+    public int getState(){
+        return estado;
+    }
+    public int cambiarEstado(String nuevo){
+        if(nuevo.equals("asesinado")){
+            estado = 2;
+        }
+        else if(nuevo.equals("capturado")){
+            estado = 3;
+        }
+        return estado;
     }
 }

@@ -75,52 +75,19 @@ public class Tcliente{
               }
 
               else if(opcion == 4){
-                System.out.println("Ingrese ID del titan a capturar");
+                System.out.println("Ingrese ID del titan a Asesinar");
                 int id = entrada.nextInt();
-
-                DatagramPacket packetRequest;
-                DatagramPacket packetResponse;
-                try{
-                  socketUni = new DatagramSocket();
-                }catch (SocketException e){
-                  e.printStackTrace();
-                }
+                UnicastRequest serverResponse;
 
                 for(int i = 0; i < titanes.size(); i++){
                   if(titanes.get(i).getId() == id){
                     titan = i;
                   }
                 }
-
-                UnicastRequest request = new UnicastRequest(id, "asesinar");
-                try{
-                  ByteArrayOutputStream serial = new ByteArrayOutputStream();
-                   ObjectOutputStream os = new ObjectOutputStream(serial);
-                  os.writeObject(request);
-                  os.close();
-                  byte[] bufMsg = serial.toByteArray();
-                  try{
-                      packetRequest = new DatagramPacket(bufMsg, bufMsg.length, ipServer, puertoU);
-                      socketUni.send(packetRequest);
-                      packetResponse = new DatagramPacket(response, response.length);
-                      socketUni.receive(packetResponse);
-                      try{
-                        ByteArrayInputStream serializado = new ByteArrayInputStream(response);
-                        ObjectInputStream is = new ObjectInputStream(serializado);
-                        UnicastRequest serverResponse = (UnicastRequest)is.readObject();
-                        is.close();
-                        if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("asesinado".replaceAll("\\P{Print}",""))){
-                          asesinados.add(titanes.get(titan));
-                        }
-                      } catch (ClassNotFoundException e){
-                        e.printStackTrace();
-                      }
-                  } catch (IOException e){e.printStackTrace();}
-                }catch (IOException e){
-                  e.printStackTrace();
+                serverResponse = enviarPeticion(id, "asesinar");
+                if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("asesinado".replaceAll("\\P{Print}",""))){
+                    asesinados.add(titanes.get(titan));
                 }
-
-
               }
             }
           }
@@ -147,16 +114,40 @@ public class Tcliente{
                         socketM.receive(packetM);
 
                         try{
-
                           ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
                           ObjectInputStream is = new ObjectInputStream(serializado);
                           Titanes nuevotitan = (Titanes)is.readObject();
                           is.close();
+                          String mensaje;
+                          int id, i;
+                          id = nuevotitan.getId();
+                          if(nuevotitan.getState() == 1){
+                              mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
+                                              +nuevotitan.getId()+".";
+                              System.out.println(mensaje);
+                              titanes.add(nuevotitan);
+                          }
+                          else if(nuevotitan.getState() == 2){
+                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue asesinado!";
+                              System.out.println(mensaje);
+                              for(i = 0; i < titanes.size(); i++){
+                                  if(titanes.get(i).getId() == id){
+                                      titanes.remove(i);
+                                      break;
+                                  }
+                              }
+                          }
+                          else if(nuevotitan.getState() == 3){
+                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue capturado!";
+                              System.out.println(mensaje);
+                              for(i = 0; i < titanes.size(); i++){
+                                  if(titanes.get(i).getId() == id){
+                                      titanes.remove(i);
+                                      break;
+                                  }
+                              }
+                          }
 
-                          String mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
-                                          +nuevotitan.getId()+".";
-                          System.out.println(mensaje);
-                          titanes.add(nuevotitan);
                         } catch (ClassNotFoundException e){
                           e.printStackTrace();
                         }
@@ -206,5 +197,36 @@ public class Tcliente{
 
     public ConexionMulticast getConexion(){
       return conexion;
+    }
+
+    public UnicastRequest enviarPeticion(int i, String accion){
+        try{
+          socketUni = new DatagramSocket();
+        }catch (SocketException e){e.printStackTrace();}
+        DatagramPacket packetRequest;
+        DatagramPacket packetResponse;
+        byte[] response = new byte[256];
+        UnicastRequest serverResponse = new UnicastRequest(i, accion);
+        UnicastRequest request = new UnicastRequest(i, accion);
+        try{
+          ByteArrayOutputStream serial = new ByteArrayOutputStream();
+          ObjectOutputStream os = new ObjectOutputStream(serial);
+          os.writeObject(request);
+          os.close();
+          byte[] bufMsg = serial.toByteArray();
+          try{
+              packetRequest = new DatagramPacket(bufMsg, bufMsg.length, ipServer, puertoU);
+              socketUni.send(packetRequest);
+              packetResponse = new DatagramPacket(response, response.length);
+              socketUni.receive(packetResponse);
+              try{
+                ByteArrayInputStream serializado = new ByteArrayInputStream(response);
+                ObjectInputStream is = new ObjectInputStream(serializado);
+                serverResponse = (UnicastRequest)is.readObject();
+                is.close();
+                } catch (ClassNotFoundException e){e.printStackTrace();}
+            } catch (IOException e){e.printStackTrace();}
+        } catch (IOException e){e.printStackTrace();}
+        return serverResponse;
     }
 }
