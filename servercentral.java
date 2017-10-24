@@ -20,13 +20,11 @@ public class servercentral extends Thread {
         Scanner scanner = new Scanner(System.in);
         System.out.println("[Central] Ingresar IP Servidor Central: ");
         try{
-            //addressCentral = InetAddress.getByName(scanner.nextLine());
-            addressCentral = InetAddress.getByName("127.0.0.1");
+            addressCentral = InetAddress.getByName(scanner.nextLine());
         } catch (UnknownHostException e) {e.printStackTrace();}
 
         System.out.println("[Central] Ingrese puerto de Servidor Central: ");
-        //puerto = scanner.nextInt();
-        puerto = 4445;
+        puerto = scanner.nextInt();
         socket = new DatagramSocket(puerto);
 
         int opcion;
@@ -55,54 +53,55 @@ public class servercentral extends Thread {
 
           // Recibir Paquete
           DatagramPacket packet = new DatagramPacket(buf, buf.length);
-          socket.receive(packet);
-          String received = new String(packet.getData());
+          while(true){
+              socket.receive(packet);
+              String received = new String(packet.getData());
 
-          // Manejo de autorización
-          InetAddress ipCliente = packet.getAddress();
-          int puertoCliente = packet.getPort();
+              // Manejo de autorización
+              InetAddress ipCliente = packet.getAddress();
+              int puertoCliente = packet.getPort();
 
-          System.out.println("[Central] Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
-          System.out.println("[1] SI");
-          System.out.println("[2] NO");
-          int decision = entrada.nextInt();
+              System.out.println("[Central] Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
+              System.out.println("[1] SI");
+              System.out.println("[2] NO");
+              int decision = entrada.nextInt();
 
-          if(decision == 1){
-            for(int i = 0; i < conexiones.size(); i++){
-              System.out.println(conexiones.get(i).getNombre());
-              System.out.println(received.replaceAll("\\P{Print}",""));
+              if(decision == 1){
+                for(int i = 0; i < conexiones.size(); i++){
 
-              System.out.println(conexiones.get(i).getNombre().equals(received));
 
-              if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
-                //String mensaje = "ADELANTE";
+                  if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
+                    //String mensaje = "ADELANTE";
+                    //bufMsg = mensaje.getBytes();
+                    //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                    //socket.send(packet);
+                    System.out.println("Entré al IFFF");
+                    try{
+                      ByteArrayOutputStream serial = new ByteArrayOutputStream();
+                      ObjectOutputStream os = new ObjectOutputStream(serial);
+                      os.writeObject(conexiones.get(i));
+                      os.close();
+                      byte[] bufMsg = serial.toByteArray();
+                      DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                      try{
+                          socket.send(packetResponse);
+                      } catch (IOException e){e.printStackTrace();}
+                    }catch (IOException e){
+                      e.printStackTrace();
+                    }
+                  }
+                }
+
+              }
+
+              else if(decision == 2){
+                String mensaje = "NOHAYMANO";
                 //bufMsg = mensaje.getBytes();
                 //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
                 //socket.send(packet);
-                try{
-                  ByteArrayOutputStream serial = new ByteArrayOutputStream();
-                  ObjectOutputStream os = new ObjectOutputStream(serial);
-                  os.writeObject(conexiones.get(i));
-                  os.close();
-                  byte[] bufMsg = serial.toByteArray();
-                  DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-                  try{
-                      socket.send(packetResponse);
-                  } catch (IOException e){e.printStackTrace();}
-                }catch (IOException e){
-                  e.printStackTrace();
-                }
               }
-            }
-
           }
 
-          else if(decision == 2){
-            String mensaje = "NOHAYMANO";
-            //bufMsg = mensaje.getBytes();
-            //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-            //socket.send(packet);
-          }
         } catch (IOException e){
           e.printStackTrace();
         }

@@ -8,8 +8,9 @@ public class main {
         proceso.serverCentral();
         ConexionMulticast conexion = proceso.getConexion();
         System.out.println(conexion.getNombre());
-        proceso.infoMulti(conexion.getMulticastIp(), conexion.getMulticastPort());
         proceso.terminal(conexion.getPeticionesIp(), conexion.getPeticionesPort());
+        proceso.infoMulti(conexion.getMulticastIp(), conexion.getMulticastPort());
+
 
 
     }

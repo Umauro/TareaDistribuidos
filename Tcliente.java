@@ -13,10 +13,12 @@ public class Tcliente{
     private int puertoU;
     private DatagramSocket socketUni;
     private static ConexionMulticast conexion;
+    private MulticastSocket socketM;
     private List<Titanes> titanes = new ArrayList<Titanes>();
     private List<Titanes> asesinados = new ArrayList<Titanes>();
     private List<Titanes> capturados = new ArrayList<Titanes>();
     protected Boolean flag = true;
+    protected Boolean adios = false;
     public Tcliente() {
         Scanner scanner = new Scanner(System.in);
 
@@ -65,8 +67,28 @@ public class Tcliente{
               }
 
               else if(opcion == 2){
-                flag = false;
                 System.out.println("Abandonando Distrito");
+                try{
+                    System.out.println("Voy a pedir los nuevos datos de conexion");
+                    serverCentral();
+                    System.out.println("Ya los obtuve");
+                    ConexionMulticast conexion = getConexion();
+                    addressMulticast = InetAddress.getByName(conexion.getMulticastIp());
+                    puertoM = conexion.getMulticastPort();
+                    ipServer = InetAddress.getByName(conexion.getPeticionesIp());
+                    puertoU = conexion.getPeticionesPort();
+                    //socketM.close();
+                    try{
+                        socketM = new MulticastSocket(puertoM);
+                        socketM.joinGroup(addressMulticast);
+                        socketM.setSoTimeout(500);
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+
+                }catch(UnknownHostException e){e.printStackTrace();
+                }
+
                 //Acá hay que agregar la opción de dejar el grupo multicast c:
               }
 
@@ -111,6 +133,24 @@ public class Tcliente{
                     System.out.println("No se puede asesinar un titan Cambiante");
                 }
               }
+              else if(opcion == 5){
+                  for(int i = 0; i < capturados.size(); i++){
+                    System.out.println("*******");
+                    System.out.println("ID: " + capturados.get(i).getId());
+                    System.out.println("Nombre: " + capturados.get(i).getNombre());
+                    System.out.println("Tipo: " + capturados.get(i).getTipo());
+                    System.out.println("*******");
+                  }
+              }
+              else if(opcion == 6){
+                  for(int i = 0; i < asesinados.size(); i++){
+                    System.out.println("*******");
+                    System.out.println("ID: " + asesinados.get(i).getId());
+                    System.out.println("Nombre: " + asesinados.get(i).getNombre());
+                    System.out.println("Tipo: " + asesinados.get(i).getTipo());
+                    System.out.println("*******");
+                  }
+              }
             }
           }
       });
@@ -127,51 +167,55 @@ public class Tcliente{
                 //Codigo para recibir mensajes de servidor multicast
                 byte[] buf = new byte[256];
                 try{
-                    MulticastSocket socketM = new MulticastSocket(puertoMulticast);
+                    socketM = new MulticastSocket(puertoMulticast);
                     socketM.joinGroup(addressMulticast); //230.0.0.1
-
+                    socketM.setSoTimeout(500);
                     DatagramPacket packetM;
                     while(true){
-                        packetM = new DatagramPacket(buf, buf.length);
-                        socketM.receive(packetM);
-
                         try{
-                          ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
-                          ObjectInputStream is = new ObjectInputStream(serializado);
-                          Titanes nuevotitan = (Titanes)is.readObject();
-                          is.close();
-                          String mensaje;
-                          int id, i;
-                          id = nuevotitan.getId();
-                          if(nuevotitan.getState() == 1){
-                              mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
-                                              +nuevotitan.getId()+".";
-                              System.out.println(mensaje);
-                              titanes.add(nuevotitan);
-                          }
-                          else if(nuevotitan.getState() == 2){
-                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue asesinado!";
-                              System.out.println(mensaje);
-                              for(i = 0; i < titanes.size(); i++){
-                                  if(titanes.get(i).getId() == id){
-                                      titanes.remove(i);
-                                      break;
-                                  }
-                              }
-                          }
-                          else if(nuevotitan.getState() == 3){
-                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue capturado!";
-                              System.out.println(mensaje);
-                              for(i = 0; i < titanes.size(); i++){
-                                  if(titanes.get(i).getId() == id){
-                                      titanes.remove(i);
-                                      break;
-                                  }
-                              }
-                          }
+                            packetM = new DatagramPacket(buf, buf.length);
+                            socketM.receive(packetM);
 
-                        } catch (ClassNotFoundException e){
-                          e.printStackTrace();
+                            try{
+                              ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
+                              ObjectInputStream is = new ObjectInputStream(serializado);
+                              Titanes nuevotitan = (Titanes)is.readObject();
+                              is.close();
+                              String mensaje;
+                              int id, i;
+                              id = nuevotitan.getId();
+                              if(nuevotitan.getState() == 1){
+                                  mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
+                                                  +nuevotitan.getId()+".";
+                                  System.out.println(mensaje);
+                                  titanes.add(nuevotitan);
+                              }
+                              else if(nuevotitan.getState() == 2){
+                                  mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue asesinado!";
+                                  System.out.println(mensaje);
+                                  for(i = 0; i < titanes.size(); i++){
+                                      if(titanes.get(i).getId() == id){
+                                          titanes.remove(i);
+                                          break;
+                                      }
+                                  }
+                              }
+                              else if(nuevotitan.getState() == 3){
+                                  mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue capturado!";
+                                  System.out.println(mensaje);
+                                  for(i = 0; i < titanes.size(); i++){
+                                      if(titanes.get(i).getId() == id){
+                                          titanes.remove(i);
+                                          break;
+                                      }
+                                  }
+                              }
+
+                            } catch (ClassNotFoundException e){
+                              e.printStackTrace();
+                            }
+                        }catch (SocketTimeoutException e){
+
                         }
                     }
                     //socketM.leaveGroup(addressMulticast);
