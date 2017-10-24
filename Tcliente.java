@@ -111,6 +111,24 @@ public class Tcliente{
                     System.out.println("No se puede asesinar un titan Cambiante");
                 }
               }
+              else if(opcion == 5){
+                  for(int i = 0; i < capturados.size(); i++){
+                    System.out.println("*******");
+                    System.out.println("ID: " + capturados.get(i).getId());
+                    System.out.println("Nombre: " + capturados.get(i).getNombre());
+                    System.out.println("Tipo: " + capturados.get(i).getTipo());
+                    System.out.println("*******");
+                  }
+              }
+              else if(opcion == 6){
+                  for(int i = 0; i < asesinados.size(); i++){
+                    System.out.println("*******");
+                    System.out.println("ID: " + asesinados.get(i).getId());
+                    System.out.println("Nombre: " + asesinados.get(i).getNombre());
+                    System.out.println("Tipo: " + asesinados.get(i).getTipo());
+                    System.out.println("*******");
+                  }
+              }
             }
           }
       });
