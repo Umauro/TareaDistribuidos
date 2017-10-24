@@ -71,7 +71,24 @@ public class Tcliente{
               }
 
               else if(opcion == 3){
-                System.out.println("Acá vamos a capturar un titan");
+                System.out.println("Ingrese ID del titan a Capturar");
+                int id = entrada.nextInt();
+                UnicastRequest serverResponse;
+
+                for(int i = 0; i < titanes.size(); i++){
+                  if(titanes.get(i).getId() == id){
+                    nachin = titanes.get(i);
+                  }
+                }
+                if(nachin.getTipo().equals("Normal") || nachin.getTipo().equals("Cambiante")){
+                    serverResponse = enviarPeticion(id, "capturar");
+                    if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("capturado".replaceAll("\\P{Print}",""))){
+                        capturados.add(nachin);
+                    }
+                }
+                else{
+                    System.out.println("No se puede capturar un titan Excentrico");
+                }
               }
 
               else if(opcion == 4){
