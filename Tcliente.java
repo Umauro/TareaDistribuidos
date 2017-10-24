@@ -13,7 +13,6 @@ public class Tcliente{
     private int puertoU;
     private DatagramSocket socketUni;
     private static ConexionMulticast conexion;
-
     private List<Titanes> titanes = new ArrayList<Titanes>();
     private List<Titanes> asesinados = new ArrayList<Titanes>();
     private List<Titanes> capturados = new ArrayList<Titanes>();
@@ -44,6 +43,7 @@ public class Tcliente{
             puertoU = puertoPeticiones;
             int opcion;
             Scanner entrada = new Scanner(System.in);
+            Titanes nachin = null;
             while(flag){
               System.out.println("[CLIENTE] Ingrese Opción");
               System.out.println("[CLIENTE] [1] Lista de Titanes");
@@ -81,12 +81,17 @@ public class Tcliente{
 
                 for(int i = 0; i < titanes.size(); i++){
                   if(titanes.get(i).getId() == id){
-                    titan = i;
+                    nachin = titanes.get(i);
                   }
                 }
-                serverResponse = enviarPeticion(id, "asesinar");
-                if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("asesinado".replaceAll("\\P{Print}",""))){
-                    asesinados.add(titanes.get(titan));
+                if(nachin.getTipo().equals("Normal") || nachin.getTipo().equals("Excentrico")){
+                    serverResponse = enviarPeticion(id, "asesinar");
+                    if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("asesinado".replaceAll("\\P{Print}",""))){
+                        asesinados.add(nachin);
+                    }
+                }
+                else{
+                    System.out.println("No se puede asesinar un titan Cambiante");
                 }
               }
             }

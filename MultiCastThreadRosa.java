@@ -106,22 +106,8 @@ public class MultiCastThreadRosa extends Thread {
 
               if(flag){
                 enviarUnicast(cliente, puertoCliente, titan, "asesinado");
-                /*
-                UnicastRequest response = new UnicastRequest(titan.getId(), "asesinado");
-                try{
-                  ByteArrayOutputStream serial = new ByteArrayOutputStream();
-                  ObjectOutputStream os = new ObjectOutputStream(serial);
-                  os.writeObject(response);
-                  os.close();
-                  byte[] bufMsg = serial.toByteArray();
-                  DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, cliente, puertoCliente);
-                  try{
-                      socket.send(packetResponse);
-
-                  } catch (IOException e){e.printStackTrace();}
-                }catch (IOException e){
-                  e.printStackTrace();
-              }*/
+                titan.cambiarEstado("asesinado");
+                enviarMulticast(titan);
               }
 
             } catch (ClassNotFoundException e){
