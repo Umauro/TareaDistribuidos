@@ -81,6 +81,7 @@ public class Tcliente{
                     try{
                         socketM = new MulticastSocket(puertoM);
                         socketM.joinGroup(addressMulticast);
+                        socketM.setSoTimeout(500);
                     }catch(IOException e){
                         e.printStackTrace();
                     }
@@ -168,49 +169,53 @@ public class Tcliente{
                 try{
                     socketM = new MulticastSocket(puertoMulticast);
                     socketM.joinGroup(addressMulticast); //230.0.0.1
-
+                    socketM.setSoTimeout(500);
                     DatagramPacket packetM;
                     while(true){
-                        packetM = new DatagramPacket(buf, buf.length);
-                        socketM.receive(packetM);
-
                         try{
-                          ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
-                          ObjectInputStream is = new ObjectInputStream(serializado);
-                          Titanes nuevotitan = (Titanes)is.readObject();
-                          is.close();
-                          String mensaje;
-                          int id, i;
-                          id = nuevotitan.getId();
-                          if(nuevotitan.getState() == 1){
-                              mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
-                                              +nuevotitan.getId()+".";
-                              System.out.println(mensaje);
-                              titanes.add(nuevotitan);
-                          }
-                          else if(nuevotitan.getState() == 2){
-                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue asesinado!";
-                              System.out.println(mensaje);
-                              for(i = 0; i < titanes.size(); i++){
-                                  if(titanes.get(i).getId() == id){
-                                      titanes.remove(i);
-                                      break;
-                                  }
-                              }
-                          }
-                          else if(nuevotitan.getState() == 3){
-                              mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue capturado!";
-                              System.out.println(mensaje);
-                              for(i = 0; i < titanes.size(); i++){
-                                  if(titanes.get(i).getId() == id){
-                                      titanes.remove(i);
-                                      break;
-                                  }
-                              }
-                          }
+                            packetM = new DatagramPacket(buf, buf.length);
+                            socketM.receive(packetM);
 
-                        } catch (ClassNotFoundException e){
-                          e.printStackTrace();
+                            try{
+                              ByteArrayInputStream serializado = new ByteArrayInputStream(buf);
+                              ObjectInputStream is = new ObjectInputStream(serializado);
+                              Titanes nuevotitan = (Titanes)is.readObject();
+                              is.close();
+                              String mensaje;
+                              int id, i;
+                              id = nuevotitan.getId();
+                              if(nuevotitan.getState() == 1){
+                                  mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
+                                                  +nuevotitan.getId()+".";
+                                  System.out.println(mensaje);
+                                  titanes.add(nuevotitan);
+                              }
+                              else if(nuevotitan.getState() == 2){
+                                  mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue asesinado!";
+                                  System.out.println(mensaje);
+                                  for(i = 0; i < titanes.size(); i++){
+                                      if(titanes.get(i).getId() == id){
+                                          titanes.remove(i);
+                                          break;
+                                      }
+                                  }
+                              }
+                              else if(nuevotitan.getState() == 3){
+                                  mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue capturado!";
+                                  System.out.println(mensaje);
+                                  for(i = 0; i < titanes.size(); i++){
+                                      if(titanes.get(i).getId() == id){
+                                          titanes.remove(i);
+                                          break;
+                                      }
+                                  }
+                              }
+
+                            } catch (ClassNotFoundException e){
+                              e.printStackTrace();
+                            }
+                        }catch (SocketTimeoutException e){
+
                         }
                     }
                     //socketM.leaveGroup(addressMulticast);
