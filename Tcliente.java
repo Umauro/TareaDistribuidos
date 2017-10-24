@@ -13,6 +13,7 @@ public class Tcliente{
     private int puertoU;
     private DatagramSocket socketUni;
     private static ConexionMulticast conexion;
+    private MulticastSocket socketM;
     private List<Titanes> titanes = new ArrayList<Titanes>();
     private List<Titanes> asesinados = new ArrayList<Titanes>();
     private List<Titanes> capturados = new ArrayList<Titanes>();
@@ -76,7 +77,14 @@ public class Tcliente{
                     puertoM = conexion.getMulticastPort();
                     ipServer = InetAddress.getByName(conexion.getPeticionesIp());
                     puertoU = conexion.getPeticionesPort();
-                    
+                    //socketM.close();
+                    try{
+                        socketM = new MulticastSocket(puertoM);
+                        socketM.joinGroup(addressMulticast);
+                    }catch(IOException e){
+                        e.printStackTrace();
+                    }
+
                 }catch(UnknownHostException e){e.printStackTrace();
                 }
 
@@ -158,7 +166,7 @@ public class Tcliente{
                 //Codigo para recibir mensajes de servidor multicast
                 byte[] buf = new byte[256];
                 try{
-                    MulticastSocket socketM = new MulticastSocket(puertoMulticast);
+                    socketM = new MulticastSocket(puertoMulticast);
                     socketM.joinGroup(addressMulticast); //230.0.0.1
 
                     DatagramPacket packetM;
