@@ -66,9 +66,17 @@ public class Tcliente{
               }
 
               else if(opcion == 2){
-                flag = false;
-                adios = true;
                 System.out.println("Abandonando Distrito");
+                try{
+                    serverCentral();
+                    ConexionMulticast conexion = getConexion();
+                    addressMulticast = InetAddress.getByName(conexion.getMulticastIp());
+                    puertoM = conexion.getMulticastPort();
+                    ipServer = InetAddress.getByName(conexion.getPeticionesIp());
+                    puertoU = conexion.getPeticionesPort();
+                }catch(UnknownHostException e){e.printStackTrace();
+                }
+
                 //Acá hay que agregar la opción de dejar el grupo multicast c:
               }
 
