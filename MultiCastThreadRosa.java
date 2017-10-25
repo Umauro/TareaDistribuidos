@@ -3,6 +3,7 @@ import java.net.*;
 import java.util.*;
 
 public class MultiCastThreadRosa extends Thread {
+    private DatagramSocket socketC = null;
     private MulticastSocket socket = null;
     private DatagramSocket socketU = null;
     private List<Titanes> titans = new ArrayList<Titanes>();
@@ -13,6 +14,9 @@ public class MultiCastThreadRosa extends Thread {
     private int puertoPeticiones;
     private String nombre;
     private Titanes titan;
+    private int whiletrue = 1;
+    private int puertoserverCentral;
+    private InetAddress addressCentral;
 
     public MultiCastThreadRosa() throws IOException {
         super("MultiCastThreadRosa");
@@ -47,8 +51,16 @@ public class MultiCastThreadRosa extends Thread {
         puertoPeticiones = scanner.nextInt();
         //puertoPeticiones = 4447;
 
+        while(paraWhile == scanner.nextLine());
+        System.out.println("Ingrese IP Server Central: ");
+        addressCentral = InetAddress.getByName(scanner.nextLine());
+
+        System.out.println("Puerto Server Central: ");
+        puertoserverCentral = scanner.nextInt();
+
         socket = new MulticastSocket(puerto);
         socketU = new DatagramSocket(puertoPeticiones);
+        socketC = new DatagramSocket();
     }
 
     public void terminal(){
@@ -60,15 +72,17 @@ public class MultiCastThreadRosa extends Thread {
 
                 while(flag == 1){
                     System.out.println("[Distrito "+nombre+"]\t");
-                    input = scanner.nextLine();
                     System.out.println("¿Que deseas hacer?");
                     System.out.println("[Publicar Titan || exit ]");
+                    input = scanner.nextLine();
                     if(input.equals("Publicar Titan")){
-                        publicarTitan();
+
+                        publicarTitan(pedirID());
                     }
                     else if(input.equals("exit")){
                         socket.close();
                         flag = 0;
+                        whiletrue = 0;
                     }
                 }
             }
@@ -80,50 +94,51 @@ public class MultiCastThreadRosa extends Thread {
       Thread t = new Thread(new Runnable(){
         public void run(){
           try{
-            byte[] recibir = new byte[256];
-            DatagramPacket packet = new DatagramPacket(recibir, recibir.length);
-            socketU.receive(packet);
+            while(whiletrue == 1){
+                byte[] recibir = new byte[256];
+                DatagramPacket packet = new DatagramPacket(recibir, recibir.length);
+                socketU.receive(packet);
 
-            InetAddress cliente = packet.getAddress();
-            int puertoCliente = packet.getPort();
-            System.out.println(packet.getPort());
+                InetAddress cliente = packet.getAddress();
+                int puertoCliente = packet.getPort();
+                System.out.println(packet.getPort());
 
 
-            Boolean flag = false;
+                Boolean flag = false;
 
-            try{
-              ByteArrayInputStream serializado = new ByteArrayInputStream(recibir);
-              ObjectInputStream is = new ObjectInputStream(serializado);
-              UnicastRequest request = (UnicastRequest)is.readObject();
-              is.close();
+                try{
+                  ByteArrayInputStream serializado = new ByteArrayInputStream(recibir);
+                  ObjectInputStream is = new ObjectInputStream(serializado);
+                  UnicastRequest request = (UnicastRequest)is.readObject();
+                  is.close();
 
-              for(int i = 0; i < titans.size(); i++){
-                if(titans.get(i).getId() == request.getId()){
-                  titan = titans.get(i);
-                  flag = true;
-                  titans.remove(i);
+                  for(int i = 0; i < titans.size(); i++){
+                    if(titans.get(i).getId() == request.getId()){
+                      titan = titans.get(i);
+                      flag = true;
+                      titans.remove(i);
+                    }
+                  }
+
+                  if(flag){
+                      if(request.getAccion().equals("asesinar")){
+                          enviarUnicast(cliente, puertoCliente, titan, "asesinado");
+                          titan.cambiarEstado("asesinado");
+                          enviarMulticast(titan);
+                      }
+                      else{
+                          enviarUnicast(cliente, puertoCliente, titan, "capturado");
+                          titan.cambiarEstado("capturado");
+                          enviarMulticast(titan);
+                      }
+
+                  }
+
+                } catch (ClassNotFoundException e){
+                  e.printStackTrace();
                 }
-              }
-
-              if(flag){
-                  if(request.getAccion().equals("asesinar")){
-                      enviarUnicast(cliente, puertoCliente, titan, "asesinado");
-                      titan.cambiarEstado("asesinado");
-                      enviarMulticast(titan);
-                  }
-                  else{
-                      enviarUnicast(cliente, puertoCliente, titan, "capturado");
-                      titan.cambiarEstado("capturado");
-                      enviarMulticast(titan);
-                  }
-
-              }
-
-            } catch (ClassNotFoundException e){
-              e.printStackTrace();
             }
           }catch (IOException e) {e.printStackTrace();}
-
         }
       });
       t.start();
@@ -159,8 +174,8 @@ public class MultiCastThreadRosa extends Thread {
         t.start();
     }
     */
-    public void publicarTitan(){
-        Titanes nuevotitan = new Titanes();
+    public void publicarTitan(int id){
+        Titanes nuevotitan = new Titanes(id);
         titans.add(nuevotitan);
         //byte[] buf = new byte[256];
 
@@ -196,5 +211,21 @@ public class MultiCastThreadRosa extends Thread {
                 socket.send(packetResponse);
             } catch (IOException e){e.printStackTrace();}
         } catch (IOException e){e.printStackTrace();}
+    }
+
+    private int pedirID(){
+        byte[] bufMsg = "idporfi".getBytes();
+        byte[] response = new byte[256];
+        DatagramPacket packet = new DatagramPacket(bufMsg, bufMsg.length, addressCentral, puertoserverCentral);
+        try{
+            socketC.send(packet);
+        } catch (IOException e){e.printStackTrace();}
+        DatagramPacket packetResponse = new DatagramPacket(response, response.length);
+        try{
+            socketC.receive(packetResponse);
+        } catch (IOException e){e.printStackTrace();}
+        String numero = new String(packetResponse.getData());
+        System.out.println(numero.replaceAll("\\P{Print}",""));
+        return Integer.valueOf(numero.replaceAll("\\P{Print}",""));
     }
 }

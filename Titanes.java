@@ -10,10 +10,10 @@ public class Titanes implements Serializable{
     private String Nombre;
     private String Tipo;
     private static int contador = 0;
-    public Titanes(){
+    public Titanes(int aidi){
         Scanner scanner = new Scanner(System.in);
 
-        ID = contador;
+        ID = aidi;
 
         System.out.println("Ingrese Nombre:\t");
         Nombre = scanner.nextLine();
@@ -27,8 +27,6 @@ public class Titanes implements Serializable{
         if(info == 1) Tipo = "Normal";
         else if(info == 2) Tipo = "Excentrico";
         else Tipo = "Cambiante";
-
-        contador++;
     }
 
     public String mostrar(){
