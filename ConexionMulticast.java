@@ -3,11 +3,11 @@ import java.net.*;
 import java.util.*;
 
 public class ConexionMulticast implements Serializable{
-  public final String nombre;
-  public final String multicastIp;
-  public final int multicastPort;
-  public final String peticionesIp;
-  public final int peticionesPort;
+  private final String nombre;
+  private final String multicastIp;
+  private final int multicastPort;
+  private final String peticionesIp;
+  private final int peticionesPort;
 
   public ConexionMulticast(){
     Scanner entrada = new Scanner(System.in);
