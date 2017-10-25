@@ -59,10 +59,10 @@ public class MultiCastThreadRosa extends Thread {
         System.out.println("Puerto Server Central: ");
         puertoserverCentral = scanner.nextInt();
 
-        socket = new MulticastSocket(null);
-        socketU = new DatagramSocket(puertoPeticiones);
+        socket = new MulticastSocket(puerto);
+        socketU = new DatagramSocket(null);
         socketC = new DatagramSocket();
-        socket.bind(address);
+        socketU.bind(address);
     }
 
     public void terminal(){
