@@ -35,7 +35,7 @@ public class Tcliente{
         puerto = 4445;
     }
 
-    public void terminal(String ipPeticiones, int puertoPeticiones){
+    public void terminal(final String ipPeticiones,final int puertoPeticiones){
       Thread t = new Thread(new Runnable(){
           public void run(){
             byte[] response = new byte[256];
@@ -157,7 +157,7 @@ public class Tcliente{
       t.start();
     }
 
-    public void infoMulti(String ipMulticast, int puertoMulticast){
+    public void infoMulti(final String ipMulticast,final int puertoMulticast){
         Thread t = new Thread(new Runnable(){
             public void run(){
               try{
