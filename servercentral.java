@@ -25,8 +25,8 @@ public class servercentral extends Thread {
 
         System.out.println("[Central] Ingrese puerto de Servidor Central: ");
         puerto = scanner.nextInt();
-        socket = new DatagramSocket(puerto);
-        socket.connect(addressCentral);
+        socket = new DatagramSocket(null);
+        socket.connect(addressCentral, puerto);
 
         int opcion;
         while(flag == 1){
