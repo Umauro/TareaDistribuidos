@@ -50,7 +50,6 @@ public class MultiCastThreadRosa extends Thread {
         System.out.println("Puerto peticiones: ");
         puertoPeticiones = scanner.nextInt();
         //puertoPeticiones = 4447;
-        InetSocketAddress address = new InetSocketAddress(aPeticiones, puertoPeticiones);
 
         while(paraWhile == scanner.nextLine());
         System.out.println("Ingrese IP Server Central: ");
@@ -59,10 +58,9 @@ public class MultiCastThreadRosa extends Thread {
         System.out.println("Puerto Server Central: ");
         puertoserverCentral = scanner.nextInt();
 
-        socket = new MulticastSocket(null);
-        socketU = new DatagramSocket(puertoPeticiones);
+        socket = new MulticastSocket(puerto);
+        socketU = new DatagramSocket(puertoPeticiones, addressPeticiones);
         socketC = new DatagramSocket();
-        socket.bind(address);
     }
 
     public void terminal(){

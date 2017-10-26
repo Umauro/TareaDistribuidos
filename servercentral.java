@@ -19,16 +19,13 @@ public class servercentral extends Thread {
         int flag = 1;
         Scanner scanner = new Scanner(System.in);
         System.out.println("[Central] Ingresar IP Servidor Central: ");
-        String hi = scanner.nextLine();
         try{
-            addressCentral = InetAddress.getByName(hi);
+            addressCentral = InetAddress.getByName(scanner.nextLine());
         } catch (UnknownHostException e) {e.printStackTrace();}
 
         System.out.println("[Central] Ingrese puerto de Servidor Central: ");
         puerto = scanner.nextInt();
-        InetSocketAddress address = new InetSocketAddress(hi, puerto);
-        socket = new DatagramSocket(null);
-        socket.bind(address);
+        socket = new DatagramSocket(puerto, addressCentral);
 
         int opcion;
         while(flag == 1){
