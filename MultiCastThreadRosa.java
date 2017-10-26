@@ -83,6 +83,7 @@ public class MultiCastThreadRosa extends Thread {
                         socket.close();
                         flag = 0;
                         whiletrue = 0;
+                        System.exit(0);
                     }
                 }
             }
@@ -145,36 +146,6 @@ public class MultiCastThreadRosa extends Thread {
       t.start();
     }
 
-    /*
-    public void mensajeContinuo(){
-        Thread t = new Thread(new Runnable(){
-            public void run(){
-                Titanes titanActual;
-                while(true){
-                    int i;
-                    String mensajeDifusion = "[Distrito "+nombre+"] Titanes en la zona:\n";
-
-                    for(i = 0; i < titans.size(); i++){
-                        titanActual = titans.get(i);
-                        mensajeDifusion += titanActual.mostrar();
-                    }
-
-                    byte[] buf = new byte[256];
-                    buf = mensajeDifusion.getBytes();
-
-                    DatagramPacket packet = new DatagramPacket(buf, buf.length, addressMulticast, puerto);
-                    try{
-                        socket.send(packet);
-                    } catch (IOException e) {e.printStackTrace();}
-                    try {
-                        sleep((long)(Math.random() * TEN_SECONDS));
-                    } catch (InterruptedException e) {e.printStackTrace();}
-                }
-            }
-        });
-        t.start();
-    }
-    */
     public void publicarTitan(int id){
         Titanes nuevotitan = new Titanes(id);
         titans.add(nuevotitan);
@@ -200,7 +171,9 @@ public class MultiCastThreadRosa extends Thread {
     }
 
     public void enviarUnicast(InetAddress cliente, int puertoCliente, Titanes titan, String accion){
-        UnicastRequest response = new UnicastRequest(titan.getId(), accion);
+        UnicastRequest response;
+        if(titan != null) response = new UnicastRequest(titan.getId(), accion);
+        else response = new UnicastRequest(-1, accion);
         if(accion.replaceAll("\\P{Print}", "").equals("perrito")){
             response.asignarLista(titans);
         }

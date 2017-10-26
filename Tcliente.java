@@ -43,6 +43,7 @@ public class Tcliente{
               ipServer = InetAddress.getByName(ipPeticiones);
             }catch (UnknownHostException e) {e.printStackTrace();}
             puertoU = puertoPeticiones;
+            pedirLista();
             int opcion;
             Scanner entrada = new Scanner(System.in);
             Titanes nachin = null;
@@ -69,9 +70,7 @@ public class Tcliente{
               else if(opcion == 2){
                 System.out.println("Abandonando Distrito");
                 try{
-                    System.out.println("Voy a pedir los nuevos datos de conexion");
                     serverCentral();
-                    System.out.println("Ya los obtuve");
                     ConexionMulticast conexion = getConexion();
                     addressMulticast = InetAddress.getByName(conexion.getMulticastIp());
                     puertoM = conexion.getMulticastPort();
@@ -276,7 +275,7 @@ public class Tcliente{
         }catch (SocketException e){e.printStackTrace();}
         DatagramPacket packetRequest;
         DatagramPacket packetResponse;
-        byte[] response = new byte[256];
+        byte[] response = new byte[512];
         UnicastRequest serverResponse = new UnicastRequest(i, accion);
         UnicastRequest request = new UnicastRequest(i, accion);
         try{
