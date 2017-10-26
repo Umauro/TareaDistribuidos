@@ -59,7 +59,7 @@ public class MultiCastThreadRosa extends Thread {
         puertoserverCentral = scanner.nextInt();
 
         socket = new MulticastSocket(puerto);
-        socketU = new DatagramSocket(puertoPeticiones);
+        socketU = new DatagramSocket(puertoPeticiones, addressPeticiones);
         socketC = new DatagramSocket();
     }
 

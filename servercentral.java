@@ -25,7 +25,7 @@ public class servercentral extends Thread {
 
         System.out.println("[Central] Ingrese puerto de Servidor Central: ");
         puerto = scanner.nextInt();
-        socket = new DatagramSocket(puerto);
+        socket = new DatagramSocket(puerto, addressCentral);
 
         int opcion;
         while(flag == 1){
@@ -60,6 +60,7 @@ public class servercentral extends Thread {
               // Manejo de autorización
               InetAddress ipCliente = packet.getAddress();
               int puertoCliente = packet.getPort();
+              System.out.println(ipCliente+" "+puertoCliente);
               if(received.replaceAll("\\P{Print}","").equals("idporfi")){
                   enviarID(ipCliente, puertoCliente);
               }
@@ -72,11 +73,6 @@ public class servercentral extends Thread {
                   if(decision == 1){
                     for(int i = 0; i < conexiones.size(); i++){
                       if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
-                        //String mensaje = "ADELANTE";
-                        //bufMsg = mensaje.getBytes();
-                        //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-                        //socket.send(packet);
-                        System.out.println("Entré al IFFF");
                         try{
                           ByteArrayOutputStream serial = new ByteArrayOutputStream();
                           ObjectOutputStream os = new ObjectOutputStream(serial);

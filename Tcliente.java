@@ -243,7 +243,6 @@ public class Tcliente{
         DatagramPacket packet = new DatagramPacket(buf, buf.length, addressCentral, puerto);
         try{
           socket.send(packet);
-
           // get response
           packet = new DatagramPacket(recibir, recibir.length);
           socket.receive(packet);
