@@ -27,6 +27,7 @@ public class servercentral extends Thread {
         puerto = scanner.nextInt();
         socket = new DatagramSocket(null);
         socket.connect(addressCentral, puerto);
+        System.out.println(socket.getInetAddress());
 
         int opcion;
         while(flag == 1){
