@@ -43,6 +43,7 @@ public class Tcliente{
               ipServer = InetAddress.getByName(ipPeticiones);
             }catch (UnknownHostException e) {e.printStackTrace();}
             puertoU = puertoPeticiones;
+            pedirLista();
             int opcion;
             Scanner entrada = new Scanner(System.in);
             Titanes nachin = null;
@@ -69,9 +70,7 @@ public class Tcliente{
               else if(opcion == 2){
                 System.out.println("Abandonando Distrito");
                 try{
-                    System.out.println("Voy a pedir los nuevos datos de conexion");
                     serverCentral();
-                    System.out.println("Ya los obtuve");
                     ConexionMulticast conexion = getConexion();
                     addressMulticast = InetAddress.getByName(conexion.getMulticastIp());
                     puertoM = conexion.getMulticastPort();
@@ -82,6 +81,7 @@ public class Tcliente{
                         socketM = new MulticastSocket(puertoM);
                         socketM.joinGroup(addressMulticast);
                         socketM.setSoTimeout(500);
+                        pedirLista();
                     }catch(IOException e){
                         e.printStackTrace();
                     }
@@ -264,13 +264,18 @@ public class Tcliente{
       return conexion;
     }
 
+    public void pedirLista(){
+        UnicastRequest nuevodist = enviarPeticion(-1, "lista");
+        titanes = nuevodist.getLista();
+    }
+
     public UnicastRequest enviarPeticion(int i, String accion){
         try{
           socketUni = new DatagramSocket();
         }catch (SocketException e){e.printStackTrace();}
         DatagramPacket packetRequest;
         DatagramPacket packetResponse;
-        byte[] response = new byte[256];
+        byte[] response = new byte[512];
         UnicastRequest serverResponse = new UnicastRequest(i, accion);
         UnicastRequest request = new UnicastRequest(i, accion);
         try{

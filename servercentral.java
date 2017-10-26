@@ -92,7 +92,7 @@ public class servercentral extends Thread {
                   }
 
                   else if(decision == 2){
-                    String mensaje = "NOHAYMANO";
+                    String mensaje = "Se rechazo la conexion";
                     //bufMsg = mensaje.getBytes();
                     //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
                     //socket.send(packet);
@@ -108,7 +108,6 @@ public class servercentral extends Thread {
 
     public void enviarID(InetAddress ipserver, int puertoserver){
         String mensaje = Integer.toString(nuevaID);
-        System.out.println(mensaje);
         byte[] bufMsg = mensaje.getBytes();
         DatagramPacket packet = new DatagramPacket(bufMsg, bufMsg.length, ipserver, puertoserver);
         try{
