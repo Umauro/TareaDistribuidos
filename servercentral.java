@@ -54,9 +54,7 @@ public class servercentral extends Thread {
           while(true){
               byte[] buf = new byte[256];
               DatagramPacket packet = new DatagramPacket(buf, buf.length);
-              System.out.println("Espero mensaje");
               socket.receive(packet);
-              System.out.println("Lo recibi");
               String received = new String(packet.getData());
 
               // Manejo de autorización
@@ -75,11 +73,6 @@ public class servercentral extends Thread {
                   if(decision == 1){
                     for(int i = 0; i < conexiones.size(); i++){
                       if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
-                        //String mensaje = "ADELANTE";
-                        //bufMsg = mensaje.getBytes();
-                        //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-                        //socket.send(packet);
-                        System.out.println("Entré al IFFF");
                         try{
                           ByteArrayOutputStream serial = new ByteArrayOutputStream();
                           ObjectOutputStream os = new ObjectOutputStream(serial);
