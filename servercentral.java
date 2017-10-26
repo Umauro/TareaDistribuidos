@@ -54,12 +54,15 @@ public class servercentral extends Thread {
           while(true){
               byte[] buf = new byte[256];
               DatagramPacket packet = new DatagramPacket(buf, buf.length);
+              System.out.println("Espero mensaje");
               socket.receive(packet);
+              System.out.println("Lo recibi");
               String received = new String(packet.getData());
 
               // Manejo de autorización
               InetAddress ipCliente = packet.getAddress();
               int puertoCliente = packet.getPort();
+              System.out.println(ipCliente+puertoCliente);
               if(received.replaceAll("\\P{Print}","").equals("idporfi")){
                   enviarID(ipCliente, puertoCliente);
               }
