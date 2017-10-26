@@ -60,7 +60,6 @@ public class servercentral extends Thread {
               // Manejo de autorización
               InetAddress ipCliente = packet.getAddress();
               int puertoCliente = packet.getPort();
-              System.out.println(ipCliente+" "+puertoCliente);
               if(received.replaceAll("\\P{Print}","").equals("idporfi")){
                   enviarID(ipCliente, puertoCliente);
               }

@@ -7,7 +7,6 @@ public class main {
         Tcliente proceso = new Tcliente();
         proceso.serverCentral();
         ConexionMulticast conexion = proceso.getConexion();
-        System.out.println(conexion.getNombre());
         proceso.terminal(conexion.getPeticionesIp(), conexion.getPeticionesPort());
         proceso.infoMulti(conexion.getMulticastIp(), conexion.getMulticastPort());
 
