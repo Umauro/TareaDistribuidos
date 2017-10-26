@@ -82,6 +82,7 @@ public class Tcliente{
                         socketM = new MulticastSocket(puertoM);
                         socketM.joinGroup(addressMulticast);
                         socketM.setSoTimeout(500);
+                        pedirLista();
                     }catch(IOException e){
                         e.printStackTrace();
                     }
@@ -262,6 +263,11 @@ public class Tcliente{
 
     public ConexionMulticast getConexion(){
       return conexion;
+    }
+
+    public void pedirLista(){
+        UnicastRequest nuevodist = enviarPeticion(-1, "lista");
+        titanes = nuevodist.getLista();
     }
 
     public UnicastRequest enviarPeticion(int i, String accion){

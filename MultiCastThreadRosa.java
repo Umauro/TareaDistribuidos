@@ -13,7 +13,7 @@ public class MultiCastThreadRosa extends Thread {
     private InetAddress addressPeticiones;
     private int puertoPeticiones;
     private String nombre;
-    private Titanes titan;
+    private Titanes titan = null;
     private int whiletrue = 1;
     private int puertoserverCentral;
     private InetAddress addressCentral;
@@ -101,9 +101,6 @@ public class MultiCastThreadRosa extends Thread {
 
                 InetAddress cliente = packet.getAddress();
                 int puertoCliente = packet.getPort();
-                System.out.println(packet.getPort());
-
-
                 Boolean flag = false;
 
                 try{
@@ -111,27 +108,31 @@ public class MultiCastThreadRosa extends Thread {
                   ObjectInputStream is = new ObjectInputStream(serializado);
                   UnicastRequest request = (UnicastRequest)is.readObject();
                   is.close();
+                  if(request.getId() != -1){
+                      for(int i = 0; i < titans.size(); i++){
+                        if(titans.get(i).getId() == request.getId()){
+                          titan = titans.get(i);
+                          flag = true;
+                          titans.remove(i);
+                        }
+                      }
 
-                  for(int i = 0; i < titans.size(); i++){
-                    if(titans.get(i).getId() == request.getId()){
-                      titan = titans.get(i);
-                      flag = true;
-                      titans.remove(i);
-                    }
+                      if(flag){
+                          if(request.getAccion().equals("asesinar")){
+                              enviarUnicast(cliente, puertoCliente, titan, "asesinado");
+                              titan.cambiarEstado("asesinado");
+                              enviarMulticast(titan);
+                          }
+                          else{
+                              enviarUnicast(cliente, puertoCliente, titan, "capturado");
+                              titan.cambiarEstado("capturado");
+                              enviarMulticast(titan);
+                          }
+
+                      }
                   }
-
-                  if(flag){
-                      if(request.getAccion().equals("asesinar")){
-                          enviarUnicast(cliente, puertoCliente, titan, "asesinado");
-                          titan.cambiarEstado("asesinado");
-                          enviarMulticast(titan);
-                      }
-                      else{
-                          enviarUnicast(cliente, puertoCliente, titan, "capturado");
-                          titan.cambiarEstado("capturado");
-                          enviarMulticast(titan);
-                      }
-
+                  else{
+                      enviarUnicast(cliente, puertoCliente, titan, "perrito");
                   }
 
                 } catch (ClassNotFoundException e){
@@ -200,6 +201,9 @@ public class MultiCastThreadRosa extends Thread {
 
     public void enviarUnicast(InetAddress cliente, int puertoCliente, Titanes titan, String accion){
         UnicastRequest response = new UnicastRequest(titan.getId(), accion);
+        if(accion.replaceAll("\\P{Print}", "").equals("perrito")){
+            response.asignarLista(titans);
+        }
         try{
             ByteArrayOutputStream serial = new ByteArrayOutputStream();
             ObjectOutputStream os = new ObjectOutputStream(serial);
