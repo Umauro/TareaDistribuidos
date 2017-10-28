@@ -3,6 +3,8 @@ import java.net.*;
 import java.util.*;
 
 public class servercentral extends Thread {
+    private List<Legion> clientes = new ArrayList<Legion>();
+    private Legion clienteActual;
     private int nuevaID = 0;
     protected DatagramSocket socket = null;
     protected BufferedReader in = null;
@@ -52,6 +54,7 @@ public class servercentral extends Thread {
 
           // Recibir Paquete
           while(true){
+              int existe = 0;
               byte[] buf = new byte[256];
               DatagramPacket packet = new DatagramPacket(buf, buf.length);
               socket.receive(packet);
@@ -64,12 +67,23 @@ public class servercentral extends Thread {
                   enviarID(ipCliente, puertoCliente);
               }
               else{
+                  for(int j = 0; j < clientes.size(); j++){
+                      clienteActual = clientes.get(j);
+                      if(clienteActual.comprobarSoldado(ipCliente) == 1){
+                          existe = 1;
+                          break;
+                      }
+                  }
                   System.out.println("[Central] Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
                   System.out.println("[1] SI");
                   System.out.println("[2] NO");
                   int decision = entrada.nextInt();
 
                   if(decision == 1){
+                    if(existe == 0){
+                        clienteActual = new Legion(received, ipCliente);
+                        clientes.add(clienteActual);
+                    }
                     for(int i = 0; i < conexiones.size(); i++){
                       if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
                         try{
@@ -77,6 +91,9 @@ public class servercentral extends Thread {
                           ObjectOutputStream os = new ObjectOutputStream(serial);
                           os.writeObject(conexiones.get(i));
                           os.close();
+                          if(existe == 1){
+                              clienteActual.cambiarDistrito(received);
+                          }
                           byte[] bufMsg = serial.toByteArray();
                           DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
                           try{
