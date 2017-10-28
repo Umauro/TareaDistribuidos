@@ -55,6 +55,7 @@ public class servercentral extends Thread {
           // Recibir Paquete
           while(true){
               int existe = 0;
+              int existeservidor = 0;
               byte[] buf = new byte[256];
               DatagramPacket packet = new DatagramPacket(buf, buf.length);
               socket.receive(packet);
@@ -74,44 +75,76 @@ public class servercentral extends Thread {
                           break;
                       }
                   }
-                  System.out.println("[Central] Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
-                  System.out.println("[1] SI");
-                  System.out.println("[2] NO");
-                  int decision = entrada.nextInt();
-
-                  if(decision == 1){
-                    if(existe == 0){
-                        clienteActual = new Legion(received, ipCliente);
-                        clientes.add(clienteActual);
-                    }
-                    for(int i = 0; i < conexiones.size(); i++){
+                  for(int i = 0; i < conexiones.size(); i++){
                       if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
-                        try{
-                          ByteArrayOutputStream serial = new ByteArrayOutputStream();
-                          ObjectOutputStream os = new ObjectOutputStream(serial);
-                          os.writeObject(conexiones.get(i));
-                          os.close();
-                          if(existe == 1){
-                              clienteActual.cambiarDistrito(received);
-                          }
-                          byte[] bufMsg = serial.toByteArray();
-                          DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-                          try{
-                              socket.send(packetResponse);
-                          } catch (IOException e){e.printStackTrace();}
-                        }catch (IOException e){
-                          e.printStackTrace();
-                        }
+                          existeservidor = 1;
+                          break;
                       }
-                    }
-
                   }
+                  if(existeservidor == 1){
+                      System.out.println("[Central] Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
+                      System.out.println("[1] SI");
+                      System.out.println("[2] NO");
+                      int decision = entrada.nextInt();
 
-                  else if(decision == 2){
-                    String mensaje = "Se rechazo la conexion";
-                    //bufMsg = mensaje.getBytes();
-                    //packet = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
-                    //socket.send(packet);
+                      if(decision == 1){
+                        if(existe == 0){
+                            clienteActual = new Legion(received, ipCliente);
+                            clientes.add(clienteActual);
+                        }
+                        for(int i = 0; i < conexiones.size(); i++){
+                          if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
+                            try{
+                              ByteArrayOutputStream serial = new ByteArrayOutputStream();
+                              ObjectOutputStream os = new ObjectOutputStream(serial);
+                              os.writeObject(conexiones.get(i));
+                              os.close();
+                              if(existe == 1){
+                                  clienteActual.cambiarDistrito(received);
+                              }
+                              byte[] bufMsg = serial.toByteArray();
+                              DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                              try{
+                                  socket.send(packetResponse);
+                              } catch (IOException e){e.printStackTrace();}
+                            }catch (IOException e){
+                              e.printStackTrace();
+                            }
+                          }
+                        }
+
+                      }
+
+                      else if(decision == 2){
+                          try{
+                            ByteArrayOutputStream serial = new ByteArrayOutputStream();
+                            ObjectOutputStream os = new ObjectOutputStream(serial);
+                            os.writeObject(new ConexionMulticast(-2));
+                            os.close();
+                            byte[] bufMsg = serial.toByteArray();
+                            DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                            try{
+                                socket.send(packetResponse);
+                            } catch (IOException e){e.printStackTrace();}
+                          }catch (IOException e){
+                            e.printStackTrace();
+                          }
+                      }
+                  }
+                  else{
+                      try{
+                        ByteArrayOutputStream serial = new ByteArrayOutputStream();
+                        ObjectOutputStream os = new ObjectOutputStream(serial);
+                        os.writeObject(new ConexionMulticast(-1));
+                        os.close();
+                        byte[] bufMsg = serial.toByteArray();
+                        DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                        try{
+                            socket.send(packetResponse);
+                        } catch (IOException e){e.printStackTrace();}
+                      }catch (IOException e){
+                        e.printStackTrace();
+                      }
                   }
               }
           }

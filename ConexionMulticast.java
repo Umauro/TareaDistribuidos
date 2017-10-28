@@ -38,6 +38,14 @@ public class ConexionMulticast implements Serializable{
 
   }
 
+  public ConexionMulticast(int puertofalso){
+      nombre = null;
+      multicastIp = null;
+      peticionesIp = null;
+      multicastPort = puertofalso;
+      peticionesPort = puertofalso;
+  }
+
   public String getNombre(){
     return nombre;
   }

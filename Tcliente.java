@@ -226,38 +226,50 @@ public class Tcliente{
     }
 
     public void serverCentral() {
+      int ok = 0;
       // get a **DatagramSocket**
+      while(ok == 0){
       try{
-        DatagramSocket socket = new DatagramSocket();
-        // variables envío de request
-        byte[] buf = new byte[256];
-        byte[] recibir = new byte[256];
-        String mensaje = "";
+            DatagramSocket socket = new DatagramSocket();
+            // variables envío de request
+            byte[] buf = new byte[256];
+            byte[] recibir = new byte[256];
+            String mensaje = "";
 
-        //Pedir nombre del distrito
-        Scanner entrada = new Scanner(System.in);
-        System.out.println("[CLIENTE] Ingrese nombre del distrito a investigar");
-        mensaje = entrada.nextLine();
-        //Envío Request al Servidor Central
-        buf = mensaje.getBytes();
-        DatagramPacket packet = new DatagramPacket(buf, buf.length, addressCentral, puerto);
-        try{
-          socket.send(packet);
-          // get response
-          packet = new DatagramPacket(recibir, recibir.length);
-          socket.receive(packet);
-          try{
-            ByteArrayInputStream serializado = new ByteArrayInputStream(recibir);
-            ObjectInputStream is = new ObjectInputStream(serializado);
-            ConexionMulticast nuevaConexion = (ConexionMulticast)is.readObject();
-            is.close();
-            conexion = nuevaConexion;
-          } catch (ClassNotFoundException e){
-            e.printStackTrace();
-          }
-        } catch (IOException e) {e.printStackTrace();}
-          socket.close();
-        } catch (SocketException e) {e.printStackTrace();}
+            //Pedir nombre del distrito
+            Scanner entrada = new Scanner(System.in);
+            System.out.println("[CLIENTE] Ingrese nombre del distrito a investigar");
+            mensaje = entrada.nextLine();
+            //Envío Request al Servidor Central
+            buf = mensaje.getBytes();
+            DatagramPacket packet = new DatagramPacket(buf, buf.length, addressCentral, puerto);
+            try{
+              socket.send(packet);
+              // get response
+              packet = new DatagramPacket(recibir, recibir.length);
+              socket.receive(packet);
+              try{
+                ByteArrayInputStream serializado = new ByteArrayInputStream(recibir);
+                ObjectInputStream is = new ObjectInputStream(serializado);
+                ConexionMulticast nuevaConexion = (ConexionMulticast)is.readObject();
+                is.close();
+                if(nuevaConexion.getPeticionesPort() == -1){
+                    System.out.println("El servidor no existe");
+                }
+                else if(nuevaConexion.getPeticionesPort() == -2){
+                    System.out.println("Se nego el acceso al servidor");
+                }
+                else{
+                    conexion = nuevaConexion;
+                    ok = 1;
+                }
+              } catch (ClassNotFoundException e){
+                e.printStackTrace();
+              }
+            } catch (IOException e) {e.printStackTrace();}
+              socket.close();
+            } catch (SocketException e) {e.printStackTrace();}
+        }
     }
 
     public ConexionMulticast getConexion(){
