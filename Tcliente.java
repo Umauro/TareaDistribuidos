@@ -19,6 +19,7 @@ public class Tcliente{
     private List<Titanes> capturados = new ArrayList<Titanes>();
     protected Boolean flag = true;
     protected Boolean adios = false;
+
     public Tcliente() {
         Scanner scanner = new Scanner(System.in);
 
@@ -35,6 +36,7 @@ public class Tcliente{
         //puerto = 4445;
     }
 
+    //Logica de acciones del cliente.
     public void terminal(final String ipPeticiones,final int puertoPeticiones){
       Thread t = new Thread(new Runnable(){
           public void run(){
@@ -48,6 +50,7 @@ public class Tcliente{
             Scanner entrada = new Scanner(System.in);
             Titanes nachin = null;
             while(flag){
+              //Menu del cliente
               System.out.println("[CLIENTE] Ingrese Opción");
               System.out.println("[CLIENTE] [1] Lista de Titanes");
               System.out.println("[Cliente] [2] Cambiar de Distrito");
@@ -57,6 +60,7 @@ public class Tcliente{
               System.out.println("[Cliente] [6] Lista Titanes Asesinados");
               opcion = entrada.nextInt();
 
+              //Lista titanes
               if(opcion == 1){
                 for(int i = 0; i < titanes.size(); i++){
                   System.out.println("*******");
@@ -67,6 +71,7 @@ public class Tcliente{
                 }
               }
 
+              //Cambiar de distrito, se vuelve a realizar la peticion al servidor central.
               else if(opcion == 2){
                 System.out.println("Abandonando Distrito");
                 try{
@@ -88,51 +93,65 @@ public class Tcliente{
 
                 }catch(UnknownHostException e){e.printStackTrace();
                 }
-
-                //Acá hay que agregar la opción de dejar el grupo multicast c:
               }
 
+              //Capturar titan, se comprueba si existe dicho titan, en caso positivo se envia la peticiones
+              //al servidor distrito con una peticion con la id del titan y la accion "capturar"
               else if(opcion == 3){
                 System.out.println("Ingrese ID del titan a Capturar");
                 int id = entrada.nextInt();
                 UnicastRequest serverResponse;
-
+                nachin = null;
                 for(int i = 0; i < titanes.size(); i++){
                   if(titanes.get(i).getId() == id){
                     nachin = titanes.get(i);
                   }
                 }
-                if(nachin.getTipo().equals("Normal") || nachin.getTipo().equals("Cambiante")){
-                    serverResponse = enviarPeticion(id, "capturar");
-                    if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("capturado".replaceAll("\\P{Print}",""))){
-                        capturados.add(nachin);
-                    }
+                if(nachin == null){
+                    System.out.println("No existe dicho titan en este servidor.");
                 }
                 else{
-                    System.out.println("No se puede capturar un titan Excentrico");
+                    if(nachin.getTipo().equals("Normal") || nachin.getTipo().equals("Cambiante")){
+                        serverResponse = enviarPeticion(id, "capturar");
+                        if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("capturado".replaceAll("\\P{Print}",""))){
+                            capturados.add(nachin);
+                        }
+                    }
+                    else{
+                        System.out.println("No se puede capturar un titan Excentrico");
+                    }
                 }
               }
 
+              //Sigue la misma logica que la opcion 3, solo que con el metodo asesinar.
               else if(opcion == 4){
                 System.out.println("Ingrese ID del titan a Asesinar");
                 int id = entrada.nextInt();
                 UnicastRequest serverResponse;
+                nachin = null;
 
                 for(int i = 0; i < titanes.size(); i++){
                   if(titanes.get(i).getId() == id){
                     nachin = titanes.get(i);
                   }
                 }
-                if(nachin.getTipo().equals("Normal") || nachin.getTipo().equals("Excentrico")){
-                    serverResponse = enviarPeticion(id, "asesinar");
-                    if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("asesinado".replaceAll("\\P{Print}",""))){
-                        asesinados.add(nachin);
-                    }
+                if(nachin == null){
+                    System.out.println("No existe dicho titan en este servidor.");
                 }
                 else{
-                    System.out.println("No se puede asesinar un titan Cambiante");
-                }
+                    if(nachin.getTipo().equals("Normal") || nachin.getTipo().equals("Excentrico")){
+                        serverResponse = enviarPeticion(id, "asesinar");
+                        if(serverResponse.getAccion().replaceAll("\\P{Print}","").equals("asesinado".replaceAll("\\P{Print}",""))){
+                            asesinados.add(nachin);
+                        }
+                    }
+                    else{
+                        System.out.println("No se puede asesinar un titan Cambiante");
+                    }
+                  }
               }
+
+              //Se lista la lista local de titanes capturados.
               else if(opcion == 5){
                   for(int i = 0; i < capturados.size(); i++){
                     System.out.println("*******");
@@ -142,6 +161,8 @@ public class Tcliente{
                     System.out.println("*******");
                   }
               }
+
+              //Se lista la lista local de titanes asesinados.
               else if(opcion == 6){
                   for(int i = 0; i < asesinados.size(); i++){
                     System.out.println("*******");
@@ -157,6 +178,7 @@ public class Tcliente{
       t.start();
     }
 
+    //Metodo para escuchar los informes del servidor multicast.
     public void infoMulti(final String ipMulticast,final int puertoMulticast){
         Thread t = new Thread(new Runnable(){
             public void run(){
@@ -184,12 +206,15 @@ public class Tcliente{
                               String mensaje;
                               int id, i;
                               id = nuevotitan.getId();
+                              //Dependiendo del estado que reciban desde el servidor van a ejecutar distintas acciones,
+                              //Si el estado es 1, se agrega el titan a la lista local
                               if(nuevotitan.getState() == 1){
                                   mensaje = "[CLIENTE] Aparece nuevo Titan! "+ nuevotitan.getNombre() + ", tipo " +nuevotitan.getTipo() +", ID"
                                                   +nuevotitan.getId()+".";
                                   System.out.println(mensaje);
                                   titanes.add(nuevotitan);
                               }
+                              //SI el estado es 2 se elimina el titan de la lista.
                               else if(nuevotitan.getState() == 2){
                                   mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue asesinado!";
                                   System.out.println(mensaje);
@@ -200,6 +225,7 @@ public class Tcliente{
                                       }
                                   }
                               }
+                              //Si el estado es 3 se elimina, pero con un mensaje distinto.
                               else if(nuevotitan.getState() == 3){
                                   mensaje = "[Cliente] El titan "+nuevotitan.getNombre()+" fue capturado!";
                                   System.out.println(mensaje);
@@ -225,9 +251,10 @@ public class Tcliente{
         t.start();
     }
 
+    //Metodo conexion al server central
     public void serverCentral() {
       int ok = 0;
-      // get a **DatagramSocket**
+      //Mientras la variable ok sea 0, se seguira intentando conectar a un nuevo distrito.
       while(ok == 0){
       try{
             DatagramSocket socket = new DatagramSocket();
@@ -276,17 +303,20 @@ public class Tcliente{
       return conexion;
     }
 
+    //Metodo para pedir la lista de titanes al servidor distrito
     public void pedirLista(){
         UnicastRequest nuevodist = enviarPeticion(-1, "lista");
         titanes = nuevodist.getLista();
     }
 
+    //Metodo de envio de paquete para realizar alguna accion en los titanes.
     public UnicastRequest enviarPeticion(int i, String accion){
         try{
           socketUni = new DatagramSocket();
         }catch (SocketException e){e.printStackTrace();}
         DatagramPacket packetRequest;
         DatagramPacket packetResponse;
+        //Tamaño de la respuesta.
         byte[] response = new byte[512];
         UnicastRequest serverResponse = new UnicastRequest(i, accion);
         UnicastRequest request = new UnicastRequest(i, accion);

@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+//Clase utilizada para mantener una lista de soldados conectados a los distintos distritos.
 public class Legion{
     private String nombreDistrito;
     private InetAddress ipSoldado;

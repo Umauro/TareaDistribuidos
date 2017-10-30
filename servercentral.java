@@ -45,12 +45,11 @@ public class servercentral extends Thread {
         }
     }
 
+    //Metodo ciclico del servidor central, estara constantemente escuchando a peticiones de otros equipos,
+    //y aceptara o rechazara ingresos a nuevos distritos.
     public void run() {
-
         try{
-
           Scanner entrada = new Scanner(System.in);
-          //byte[] bufMsg = new byte[256];
 
           // Recibir Paquete
           while(true){
@@ -64,9 +63,13 @@ public class servercentral extends Thread {
               // Manejo de autorización
               InetAddress ipCliente = packet.getAddress();
               int puertoCliente = packet.getPort();
+              //Se determina la naturaleza del mensaje, idporfi implica que el servidor distrito quiere la ID del titan.
               if(received.replaceAll("\\P{Print}","").equals("idporfi")){
                   enviarID(ipCliente, puertoCliente);
               }
+
+              //En caso contrario es un mensaje de un cliente, para ingresar a un distrito.
+              //Se comprueba que cliente es el que quiere cambiar de distrito.
               else{
                   for(int j = 0; j < clientes.size(); j++){
                       clienteActual = clientes.get(j);
@@ -75,23 +78,29 @@ public class servercentral extends Thread {
                           break;
                       }
                   }
+                  //Se comprueba si existe el servidor para cambiar.
                   for(int i = 0; i < conexiones.size(); i++){
                       if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
                           existeservidor = 1;
                           break;
                       }
                   }
+                  //SI el servidor existe entonces se procede a dar o no autorizacion para cambiar.
                   if(existeservidor == 1){
                       System.out.println("[Central] Dar autorización a " + ipCliente.toString()+ " al distrito " + received + "?");
                       System.out.println("[1] SI");
                       System.out.println("[2] NO");
                       int decision = entrada.nextInt();
 
+                      //Se da permiso.
                       if(decision == 1){
+                          //Se determina si el cliente ya esta registrado en la lista,
+                          //En caso de no estarlo se ingresa.
                         if(existe == 0){
                             clienteActual = new Legion(received, ipCliente);
                             clientes.add(clienteActual);
                         }
+                        //Se determina la ip del servidor distrito, para enviar la autorizacion al cliente.
                         for(int i = 0; i < conexiones.size(); i++){
                           if(conexiones.get(i).getNombre().replaceAll("\\P{Print}","").equals(received.replaceAll("\\P{Print}",""))){
                             try{
@@ -99,11 +108,13 @@ public class servercentral extends Thread {
                               ObjectOutputStream os = new ObjectOutputStream(serial);
                               os.writeObject(conexiones.get(i));
                               os.close();
+                              //Se cambia el distrito del usuario.
                               if(existe == 1){
                                   clienteActual.cambiarDistrito(received);
                               }
                               byte[] bufMsg = serial.toByteArray();
                               DatagramPacket packetResponse = new DatagramPacket(bufMsg, bufMsg.length, ipCliente, puertoCliente);
+                              //Se responde con la informacion correspondiente.
                               try{
                                   socket.send(packetResponse);
                               } catch (IOException e){e.printStackTrace();}
@@ -114,7 +125,7 @@ public class servercentral extends Thread {
                         }
 
                       }
-
+                      //Se niega el ingreso y se enviar un objeto tipo ConexionMulticast con un puerto de valor -2
                       else if(decision == 2){
                           try{
                             ByteArrayOutputStream serial = new ByteArrayOutputStream();
@@ -131,6 +142,8 @@ public class servercentral extends Thread {
                           }
                       }
                   }
+                  //El servidor al que se quiere ingresar no existe, por lo tanto se envia una respuesta con un puerto
+                  //-1
                   else{
                       try{
                         ByteArrayOutputStream serial = new ByteArrayOutputStream();
@@ -155,6 +168,8 @@ public class servercentral extends Thread {
         socket.close();
     }
 
+    //Metodo de respuesta al servidor distrito, simplemente envia la nueva ID y aumenta el contador de este mismo,
+    //para no repetirlo.
     public void enviarID(InetAddress ipserver, int puertoserver){
         String mensaje = Integer.toString(nuevaID);
         byte[] bufMsg = mensaje.getBytes();

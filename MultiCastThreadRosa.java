@@ -18,6 +18,8 @@ public class MultiCastThreadRosa extends Thread {
     private int puertoserverCentral;
     private InetAddress addressCentral;
 
+    //Constructor de la clase, se inicializan todas las variables necesarias y se realiza la conexion con el
+    //servidor central.
     public MultiCastThreadRosa() throws IOException {
         super("MultiCastThreadRosa");
 
@@ -63,6 +65,8 @@ public class MultiCastThreadRosa extends Thread {
         socketC = new DatagramSocket();
     }
 
+    //Metodo que recibe las acciones del distrito por terminal
+    //puede ser Publicar Titan o exit
     public void terminal(){
         Thread t = new Thread(new Runnable(){
             public void run(){
@@ -76,7 +80,7 @@ public class MultiCastThreadRosa extends Thread {
                     System.out.println("[Publicar Titan || exit ]");
                     input = scanner.nextLine();
                     if(input.equals("Publicar Titan")){
-
+                        //Se solicita la id del proximo titan al servidor central.
                         publicarTitan(pedirID());
                     }
                     else if(input.equals("exit")){
@@ -91,6 +95,10 @@ public class MultiCastThreadRosa extends Thread {
         t.start();
     }
 
+    //Corresponde al metodo para responder a las solicitudes de los clientes
+    //Puede ser, capturar titan o asesinar titan
+    //en caso de no ser ninguna de las anteriores entonces el cliente ingreso recien al servidor
+    //Y se envia la lista completa de titanes.
     public void unicast(){
       Thread t = new Thread(new Runnable(){
         public void run(){
@@ -118,6 +126,7 @@ public class MultiCastThreadRosa extends Thread {
                         }
                       }
 
+                      //Se determina la finalidad del mensaje, asesinar o capturar
                       if(flag){
                           if(request.getAccion().equals("asesinar")){
                               enviarUnicast(cliente, puertoCliente, titan, "asesinado");
@@ -132,6 +141,7 @@ public class MultiCastThreadRosa extends Thread {
 
                       }
                   }
+                  //En caso de no ser para asesinar o capturar se envia la lista completa de titanes.
                   else{
                       enviarUnicast(cliente, puertoCliente, titan, "perrito");
                   }
@@ -146,16 +156,16 @@ public class MultiCastThreadRosa extends Thread {
       t.start();
     }
 
+    //Se crea un elemento del tito titan con una id solicitada al servidor central.
     public void publicarTitan(int id){
         Titanes nuevotitan = new Titanes(id);
         titans.add(nuevotitan);
-        //byte[] buf = new byte[256];
-
-        //Intento de serialización
         enviarMulticast(nuevotitan);
-        //socket.close();
     }
 
+    //Metodo para enviar mensaje a todos los usuarios,
+    //dependiendo del estado que tenga la variable tipo Titan, se eliminara, agregara cada titan a la lista
+    //de los clientes.
     public void enviarMulticast(Titanes titan){
         try{
             ByteArrayOutputStream serial = new ByteArrayOutputStream();
@@ -170,6 +180,9 @@ public class MultiCastThreadRosa extends Thread {
         } catch (IOException e){e.printStackTrace();}
     }
 
+    //Metodo de respuesta para las peticiones unicast, se entregan como parametros
+    //la ip del cliente, el puerto de respuesta, el titan en cuestion y la accion que se debe realizar
+    //ya sea ingresar a la lista o eliminar.
     public void enviarUnicast(InetAddress cliente, int puertoCliente, Titanes titan, String accion){
         UnicastRequest response;
         if(titan != null) response = new UnicastRequest(titan.getId(), accion);
@@ -190,6 +203,7 @@ public class MultiCastThreadRosa extends Thread {
         } catch (IOException e){e.printStackTrace();}
     }
 
+    //Solicitud de ID al servidor central.
     private int pedirID(){
         byte[] bufMsg = "idporfi".getBytes();
         byte[] response = new byte[256];
@@ -202,7 +216,6 @@ public class MultiCastThreadRosa extends Thread {
             socketC.receive(packetResponse);
         } catch (IOException e){e.printStackTrace();}
         String numero = new String(packetResponse.getData());
-        System.out.println(numero.replaceAll("\\P{Print}",""));
         return Integer.valueOf(numero.replaceAll("\\P{Print}",""));
     }
 }

@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+//Envio de mensajes para ingreso o expulsion de titanes en una lista, ademas se utiliza para enviar la lista completa de titanes.
 public class UnicastRequest implements Serializable{
   private int id;
   private String accion;

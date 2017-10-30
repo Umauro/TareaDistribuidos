@@ -10,6 +10,8 @@ public class Titanes implements Serializable{
     private String Nombre;
     private String Tipo;
     private static int contador = 0;
+
+    //Metodo de creacion de titanes.
     public Titanes(int aidi){
         Scanner scanner = new Scanner(System.in);
 

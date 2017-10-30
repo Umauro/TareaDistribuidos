@@ -2,6 +2,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+//Clase utilizada para el el ingreso a un servidor distrito.
 public class ConexionMulticast implements Serializable{
   private final String nombre;
   private final String multicastIp;
