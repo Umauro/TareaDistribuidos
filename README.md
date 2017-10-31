@@ -24,7 +24,9 @@ Una vez iniciado el programa ingresar los datos solicitados, es importante resal
 antes de publicar un titan con la funcion (Publicar Titan) en un servidor distrito, el servidor
 central debe estar inicializado, ya que la ID para el titan se obtiene desde este mismo.
 
-Si el paso de mensajes no funciona entre equipos, debe desactivar firewall.
+Si el paso de mensajes no funciona entre equipos, debe desactivar firewall, con el comando en la terminal.
+
+systemctl stop firewalld.service
 
 Consideracion, dependiendo del tamaño de la lista, puede que un mensaje pueda o no enviarse, en caso de fallar, cambiar el tamaño
 del byte[] que se encuentra en el archivo Tcliente.java en la linea 320.
